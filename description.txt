@@ -1,0 +1,32 @@
+Uwagi do wszystkich programów:
+• Programy uruchamiane są z linii poleceń.
+• Parametry przekazywane są do programu z linii poleceń.
+• Parametry mogą być podawane w różnej kolejności.
+• Program powinien być odporny na błędnie wprowadzane dane.
+Program powinien mieć opcję wypisywania krótkiej pomocy po uruchomieniu go z przełącznikiem -h. Ta sama pomoc powinna zostać wyświetlona przy uruchomieniu programu z błędnymi parametrami.
+• Program powinien działać z danymi o dowolnej długości.
+• Program powinien przeglądać plik wejściowy tylko jeden raz.
+• Program powinien alokować tylko tyle pamięci, ile rzeczywiście potrzebne jest do przechowywania danych.
+Program powinien zostać dobrze przetestowany. W przypadku pracy z plikami należy dostarczyć pliki testowe zawierające co najmniej 1000 elementów.
+
+W pewnej części oceanu zaczęli grasować piraci. Napadają na pływające po tym obszarze statki, łupiąc i bez litości rozprawiają się z załogami. 
+Aby przeciwstawić się tej zbrodniczej działalności, postanowiono przeprowadzić badania symulacyjne dotyczące zdarzeń rozgrywających się w tym niebezpiecznym zakątku świata.
+Do przeprowadzenia symulacji wykorzystany zostanie specjalny program komputerowy, którego napisanie jest właśnie tematem tego zadania.
+Program powinien umożliwiać wyznaczenie statystyk skuteczności piratów. Przyjmujemy, że piraci grasują na prostokątnym obszarze morza,
+Na tym samym obszarze poruszają się też inne statki, które są celem ich ataku. Statek piracki,
+„Zielona ostryga” jest najszybszą z wszystkich jednostek. Przyjmujemy, że zawsze jego prędkość jest o 25% większa niż najszybszego statku w badanym obszarze.
+Statek piracki aktywnie poszukuje innych statków, poruszając się po linii łamanej. Pozostałe jednostki przepływają przez monitorowany obszar wzdłuż linii prostej,
+o ile nie zostały zaatakowane przez piratów lub nie zauważyły zbliżającego się pirackiego statku.
+Podczas pisania programu należy przyjąć następujące założenia:
+1. Statki przepływające przez obszar objęty eksperymentem są różnego typu. Od typu tego zależy ich prędkość i podatność na atak. Należy przewidzieć co najmniej 3 różne typy statków.
+2. Statki pojawiają się w losowo wybranym punkcie obrzeża badanego obszaru i kierują się do jego naprzeciwległego brzegu wzdłuż linii prostej. Liczba i prędkości statków są zadawane przez użytkownika.
+3. Statek piracki pojawia się na początku symulacji w losowo wybranym punkcie, a następnie poruszając się po linii łamanej próbuje zlokalizować swoje ofiary. 
+Gdy „zobaczy” inny statek, podąża za nim i próbuje dokonać abordażu. Skuteczność abordażu jest losowa, przy czym powodzenie ataku zależy od typu atakowanego statku i jego podatności.
+Zarówno po udanym jak i po nieudanym ataku, statek piratów kontynuuje poszukiwania kolejnej jednostki (nie próbuje jednak ponownie zaatakować już zaatakowanej).
+4. Statek „widząc” piratów rozpoczyna ucieczkę – kieruje się do najbliższej krawędzi obszaru. Jeśli został skutecznie zaatakowany, tonie. Jeśli nie, ucieka poza badany obszar oceanu.
+5. Przyjmujemy, że położenia okrętów w badanym obszarze podajemy za pomocą współrzędnych. Założyć, że początek układu współrzędnych znajduje się w lewym dolnym rogu obszaru,
+a osie skierowane są wzdłuż jego krawędzi. Jednostka jest równa przyjętej jednostce odległości.
+Program jako parametry przyjmuje czas trwania symulacji, rozmiar patrolowanego obszaru, listę prędkości statków oraz czasy, licząc od początku symulacji, ich pojawienia się w badanym obszarze.
+Liczba wartości prędkości oraz czasów musi zawierać tyle samo pozycji. Program wypisuje informacje o zdarzeniach rozgrywających się na rozpatrywanym obszarze 
+z podaniem nazwy (identyfikatora) statku, jego współrzędnych, podejmowanej akcji. Po zakończeniu symulacji podawana jest ponadto informacja o ilości podjętych ataków 
+przez statek piracki oraz o ilości ataków zakończonej sukcesem. Przyjąć, że statek x jest widziany przez statek y, jeśli ich odległość jest mniejsza od pewnej, charakterystycznej dla statku y wartości.
