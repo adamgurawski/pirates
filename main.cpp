@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+// TODO: use boost?
+
 int main(int argc, const char** argv)
 {
 	std::map<std::string, int> parameters;
