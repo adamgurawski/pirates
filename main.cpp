@@ -1,14 +1,20 @@
 #include "console.h"
 #include "game.h"
+#include "map.h"
+
+#define DEBUG 1
 
 #include <iostream>
 #include <string>
+#include <time.h>
 #include <vector>
 
 // TODO: use boost?
+// TODO: where to put srand?
 
 int main(int argc, const char** argv)
 {
+	/*
 	std::map<std::string, int> parameters;
 	std::vector<game::TShip> ships;
 	bool ok = console::ValidateInput(argc, argv, parameters, ships);
@@ -30,6 +36,21 @@ int main(int argc, const char** argv)
 		game::TGame game;
 		ok = game.Run();
 	}
+	*/
 
+	srand(time(NULL));
+
+#if DEBUG
+	for (int i = 0; i < 100; ++i)
+	{
+#endif
+	TCoordinates rollTest = getBorderCoordinates(10, 20);
+	std::cout << "Rolled coordinates: " << rollTest.X << " " << rollTest.Y <<
+		"." << std::endl;
+#if DEBUG
+	}
+#endif
+
+	std::cin.get();
 	return 0;
 }
