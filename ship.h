@@ -7,8 +7,27 @@
 
 class IShip
 {
+public:
+	IShip() = default;
 
-private:
+	TCoordinates debug_GetDestination() const
+	{
+		return Destination;
+	}
+
+	TCoordinates GetPosition() const
+	{
+		return Position;
+	}
+
+protected:
+	// To be used by the constructor.
+	virtual void SetStartingDestination(TCoordinates) = 0;
+
+protected:
+	// Name. [?] Separate identificator to be added? Is it neccessary?
+	std::string Name;
+
 	// Speed.
 	float Velocity;
 
@@ -26,17 +45,23 @@ private:
 class ACivilian : public IShip
 {
 public:
+
 	bool WasAttacked() const
 	{
 		return Attacked;
 	}
 
-private:
-	// Chance to be attacked (percents?).
-	const int Vulnerability;
+protected:
+	ACivilian() : Vulnerability(0)
+	{}
 
-	// Name. [?] Separate identificator to be added? Is it neccessary?
-	std::string Name;
+	ACivilian(TCoordinates position, TCoordinates mapDimensions, unsigned vulnerability = 100);
+
+	virtual void SetStartingDestination(TCoordinates mapDimensions) override;
+
+protected:
+	// Chance to be attacked (percents?).
+	const unsigned Vulnerability;
 
 	/* Set to true when the ship was unsuccessfully attacked.
 		 In case when it was successfully attacked - it sinks and gets deleted
@@ -46,7 +71,12 @@ private:
 
 class TBulkCarrier : public ACivilian
 {
-
+public:
+	TBulkCarrier() = default;
+	TBulkCarrier(TCoordinates position, TCoordinates mapDimensions) :
+		ACivilian(position, mapDimensions, 30)
+	{
+	}
 };
 
 class TTanker : public ACivilian

@@ -19,6 +19,8 @@
 	 -time
 	 time in seconds
 	*/
+/*
+
 const int requiredArgs = 10;
 
 // Errors used solely by console.cpp functions.
@@ -116,3 +118,4 @@ namespace console
 		std::cout << "Help called, to be implemented." << std::endl;
 	}
 }
+*/

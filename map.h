@@ -9,11 +9,21 @@ struct TCoordinates
 
 class TMap
 {
+public:
+	TMap(TCoordinates dimensions) : Dimensions(dimensions)
+		{}
 
+	TCoordinates GetMapDimensions() const
+	{
+		return Dimensions;
+	}
+
+	TCoordinates RollCivilianPosition() const;
+
+	TCoordinates RollPiratesPosition() const;
+
+private:
+	TCoordinates Dimensions;
 };
-
-// TODO: rename.
-TCoordinates getBorderCoordinates(unsigned int xMax,
-	unsigned int yMax);
 
 #endif // _MAP_H
