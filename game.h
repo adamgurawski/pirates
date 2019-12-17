@@ -8,7 +8,7 @@
 
 #include <memory>
 #include <string>
-#include <vector>
+#include <list>
 
 class TGame
 {
@@ -21,9 +21,22 @@ public:
 	bool Run();
 
 private:
+	TCoordinates SetCivilianStartingDestination(TCoordinates position) const;
+
+	// Save max velocity of the fastest ship and modify pirate's velocity.
+	void ModifyMaxVelocity(float newVelocity)
+	{
+		if (newVelocity > CurrentMaxVelocity)
+		{
+		CurrentMaxVelocity = newVelocity;
+		Pirate.ModifyVelocity(CurrentMaxVelocity);
+		}
+	}
+
+private:
 	TMap Map;
 
-	std::vector<std::unique_ptr<IShip*>> Ships;
+	std::list<std::unique_ptr<IShip>> Ships;
 
 	// Number of pirate's attack attempts.
 	unsigned int Attempts = 0;
@@ -33,6 +46,9 @@ private:
 
 	// The speed of the fastest ship on map.
 	float CurrentMaxVelocity = 0;
+
+	// The pirate.
+	TPirate Pirate;
 };
 
 #endif // _GAME_H

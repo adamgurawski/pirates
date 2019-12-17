@@ -8,7 +8,7 @@
 
 int main(int argc, const char** argv)
 {
-	TGame game(20, 50);
+	TGame game(10, 10);
 	//game.Run();
 
 	std::cin.get();
