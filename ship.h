@@ -14,6 +14,11 @@ struct TCoordinates
 class IShip
 {
 public:
+	// Needed by TGame's constructor.
+	IShip() = default;
+
+	virtual ~IShip() = default;
+
 	TCoordinates GetPosition() const
 	{
 		return Position;
@@ -23,7 +28,7 @@ public:
 	{
 		std::cout << "Name: " << Name << std::endl << "Velocity: " <<
 			Velocity << std::endl << "Visibility: " << Visibility << std::endl <<
-			"Position: " << Position.X << " " << Position.Y << std::endl <<
+			"Position: [" << Position.X << " " << Position.Y << "]" << std::endl <<
 			"Destination: " << Destination.X << " " << Destination.Y << std::endl;
 	}
 
@@ -55,6 +60,8 @@ protected:
 class ACivilian : public IShip
 {
 public:
+	virtual ~ACivilian() = default;
+
 	bool WasAttacked() const
 	{
 		return Attacked;
@@ -79,9 +86,10 @@ protected:
 		IShip(name, velocity, visibility, position, destination), Vulnerability(vulnerability)
 	{}
 
+
 protected:
 	// Chance to be attacked (percents?).
-	const unsigned Vulnerability;
+	const unsigned int Vulnerability;
 
 	/* Set to true when the ship was unsuccessfully attacked.
 		 In case when it was successfully attacked - it sinks and gets deleted
@@ -96,6 +104,8 @@ public:
 	TBulkCarrier(const std::string& name, float velocity, int visibility, TCoordinates position,
 		TCoordinates destination) : ACivilian(name, velocity, visibility, position, destination, 60)
 	{}
+
+	virtual ~TBulkCarrier() = default;
 };
 
 /* Vulnerability = 80%.
@@ -107,6 +117,7 @@ public:
 		TCoordinates destination) : ACivilian(name, velocity, visibility, position, destination, 80)
 	{}
 
+	virtual ~TTanker() = default;
 };
 
 /* Vulnerability = 30%.
@@ -118,15 +129,22 @@ public:
 		TCoordinates destination) : ACivilian(name, velocity, visibility, position, destination, 30)
 	{}
 
+	virtual ~TPassenger() = default;
 };
 
 class TPirate : public IShip
-{ // "The Green Oyster"
+{
 public:
 	TPirate(float velocity, float visibility,
 		TCoordinates position, TCoordinates destination) : IShip("The Green Oyster",
 			velocity, visibility, position, destination), Target(nullptr)
 	{}
+
+	// Needed by TGame's constructor.
+	TPirate() = default;
+
+	// Do not call "delete" on Target, pirate does not own this pointer.
+	virtual ~TPirate() = default;
 	
 	void ModifyVelocity(float baseVelocity)
 	{

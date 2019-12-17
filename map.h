@@ -36,14 +36,19 @@ struct TCoordinatesComparer
 class TMap
 {
 public:
-	TMap(TCoordinates dimensions) : Dimensions(dimensions)
+	TMap(unsigned int width, unsigned int height) : Width(width), Height(height)
 	{
 		CreateEmptyMap();
 	}
 
-	TCoordinates GetMapDimensions() const
+	unsigned int GetWidth() const
 	{
-		return Dimensions;
+		return Width;
+	}
+
+	unsigned int GetHeight() const
+	{
+		return Height;
 	}
 
 	TCoordinates RollCivilianPosition() const;
@@ -52,17 +57,17 @@ public:
 
 	void debug_PrintMap() const
 	{
-		// TODO: correct condition.
-		for (unsigned int x = 0; x <= Dimensions.X; ++x)
+		for (int y = Height - 1; y >= 0; y--)
 		{
-			for (unsigned int y = 0; y <= Dimensions.Y; ++y)
+			std::cout << y << " ";
+			for (unsigned int x = 0; x < Width; ++x)
 			{
-				if (IsEmpty({ x,y }))
+				if (IsEmpty({ x, static_cast<unsigned int>(y) }))
 					std::cout << " .";
 				else
 				{
 					// Debug.
-					if (dynamic_cast<const TPirate*>(Map.at({ x,y })))
+					if (dynamic_cast<const TPirate*>(Map.at({ x, static_cast<unsigned int>(y) })))
 						std::cout << " O";
 					else
 						std::cout << " X";
@@ -70,22 +75,14 @@ public:
 			}
 			std::cout << std::endl;
 		}
+		std::cout << "   ";
+		for (int j = 0; j < Width; j++)
+			std::cout << j << " ";
+		std::cout << std::endl;
 	}
 
 	// Returns true if new ship was added, false when the field was not nullptr.
-	bool PlaceShipOnMap(TCoordinates coordinates, const IShip* ship)
-	{
-		if (IsEmpty(coordinates))
-		{
-			auto it = Map.find(coordinates);
-			it->second = ship;
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+	bool PlaceOnMap(TCoordinates coordinates, const IShip* ship);
 
 private:
 	bool IsEmpty(TCoordinates coordinates) const
@@ -97,10 +94,8 @@ private:
 
 	std::map<TCoordinates, const IShip*, TCoordinatesComparer> Map;
 
-	// TODO: verify.
-	// In fact this field represent maximum possible coordinates, so 
-	// width = dimensions.X + 1; height = dimensions.Y + 1;
-	TCoordinates Dimensions;
+	unsigned int Width;
+	unsigned int Height;
 };
 
 #endif // _MAP_H

@@ -3,8 +3,7 @@
 #include "map.h"
 
 #include <iostream>
-
-// TODO: use boost?
+// TODO: use boost/getopt for parameters?
 
 int main(int argc, const char** argv)
 {
@@ -16,7 +15,8 @@ int main(int argc, const char** argv)
 }
 
 
-/*
+/* The first version of validating console input:
+
 std::map<std::string, int> parameters;
 std::vector<game::TShip> ships;
 bool ok = console::ValidateInput(argc, argv, parameters, ships);

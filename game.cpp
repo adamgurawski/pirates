@@ -5,12 +5,15 @@
 
 #define SHIP_COUNT 3
 
-TGame::TGame(unsigned int width, unsigned int height)
-	: Map({ width, height }), Pirate(0, 5, Map.RollPiratesPosition(), { 0,0 })
+TGame::TGame(unsigned int mapWidth, unsigned int mapHeight)
+	: Map({ mapWidth, mapHeight })
 {
 	srand(time(NULL));
 
-	Map.PlaceShipOnMap(Pirate.GetPosition(), &Pirate);
+	// Srand must be called before Map.RollPiratesPosition.
+	Pirate = TPirate(0, 5, Map.RollPiratesPosition(), { 0,0 });
+	
+	Map.PlaceOnMap(Pirate.GetPosition(), &Pirate);
 
 	for (int i = 0; i < SHIP_COUNT; ++i)
 	{
@@ -43,7 +46,7 @@ TGame::TGame(unsigned int width, unsigned int height)
 
 		IShip* shipInList = std::next(Ships.begin(), i)->get();
 		// Starting position's Y=10 generates erorrs.
-		Map.PlaceShipOnMap(shipInList->GetPosition(), shipInList);
+		Map.PlaceOnMap(shipInList->GetPosition(), shipInList);
 
 		// Debug.
 		shipInList->debug_IntroduceYourself();
@@ -53,28 +56,38 @@ TGame::TGame(unsigned int width, unsigned int height)
 	Map.debug_PrintMap();
 }
 
+bool TGame::Run()
+{ // TODO: implement Run().
+	return true;
+}
+
 TCoordinates TGame::SetCivilianStartingDestination(TCoordinates position) const
 {
-	TCoordinates mapDimensions = Map.GetMapDimensions();
 	TCoordinates destination = position;
+	unsigned int xMax = Map.GetWidth() - 1;
+	unsigned int yMax = Map.GetHeight() - 1;
 
 	/* Get opposite side of map.
 			Not using else because of these cases:
 			- for x = 0, y = 0 we want to set x = max, y = max.
 			- for x = max, y = max we want to set x = 0, y = 0. */
 	if (position.X == 0)
-		destination.X = mapDimensions.X;
+		destination.X = xMax;
 	if (position.Y == 0)
-		destination.Y = mapDimensions.Y;
-	if (position.X == mapDimensions.X)
+		destination.Y = yMax;
+	if (position.X == xMax)
 		destination.X = 0;
-	if (position.Y == mapDimensions.Y)
+	if (position.Y == yMax)
 		destination.Y = 0;
-
+	
 	return destination;
 }
 
-bool TGame::Run()
-{ // TODO: implement.
-	return true;
+void TGame::ModifyMaxVelocity(float newVelocity)
+{
+	if (newVelocity > CurrentMaxVelocity)
+	{
+		CurrentMaxVelocity = newVelocity;
+		Pirate.ModifyVelocity(CurrentMaxVelocity);
+	}
 }

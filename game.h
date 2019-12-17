@@ -13,7 +13,7 @@
 class TGame
 {
 public:
-	TGame(unsigned int width, unsigned int height);
+	TGame(unsigned int mapWidth, unsigned int mapHeight);
 
 	~TGame()
 	{}
@@ -24,14 +24,7 @@ private:
 	TCoordinates SetCivilianStartingDestination(TCoordinates position) const;
 
 	// Save max velocity of the fastest ship and modify pirate's velocity.
-	void ModifyMaxVelocity(float newVelocity)
-	{
-		if (newVelocity > CurrentMaxVelocity)
-		{
-		CurrentMaxVelocity = newVelocity;
-		Pirate.ModifyVelocity(CurrentMaxVelocity);
-		}
-	}
+	void ModifyMaxVelocity(float newVelocity);
 
 private:
 	TMap Map;
