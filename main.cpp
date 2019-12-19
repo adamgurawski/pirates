@@ -1,13 +1,16 @@
-#include "console.h"
+#include "options.h"
 #include "game.h"
 #include "map.h"
 
 #include <iostream>
-// TODO: use boost/getopt for parameters?
+
+// TODO: change velocity into float (TOptions)
 
 int main(int argc, const char** argv)
 {
-	TGame game(10, 10);
+	options::TOptions options(argc, argv);
+
+	TGame game(options);
 	//game.Run();
 
 	std::cin.get();

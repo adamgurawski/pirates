@@ -1,57 +1,70 @@
 #include "game.h"
 
+#include <cassert>
 #include <iostream> 
 #include <time.h> // srand
 
-#define SHIP_COUNT 3
-
-TGame::TGame(unsigned int mapWidth, unsigned int mapHeight)
-	: Map({ mapWidth, mapHeight })
+TGame::TGame(options::TOptions& options)
+	: Map({ options.GetMapWidth(), options.GetMapHeight() }),
+	SimulationTime(options.GetSimulationTime())
 {
+	// Srand must be called before Map.RollPiratesPosition.
 	srand(time(NULL));
 
-	// Srand must be called before Map.RollPiratesPosition.
+	// Create pirate and place it on the map.
 	Pirate = TPirate(0, 5, Map.RollPiratesPosition(), { 0,0 });
-	
 	Map.PlaceOnMap(Pirate.GetPosition(), &Pirate);
 
-	for (int i = 0; i < SHIP_COUNT; ++i)
+	std::vector<options::TShipInfo> shipInfoVector = options.GetShips();
+	
+	// Temp helper for inserting to list. TODO: delete.
+	int i = 0;
+	for (options::TShipInfo shipInfo: shipInfoVector)
 	{
 		TCoordinates startingPosition = Map.RollCivilianPosition();
 		TCoordinates destination = SetCivilianStartingDestination(startingPosition);
 		std::unique_ptr<IShip> ship;
 
-		int generated = rand() % 3 + 1;
-		switch (generated)
-		{
-			case 1:
-				ship = std::make_unique<TPassenger>(TPassenger("HMS Meraviglia", generated, 3, 
-					startingPosition, destination));
-				break;
-			case 2:
-				generated *= 2;
-				ship = std::make_unique<TBulkCarrier>(TBulkCarrier("MV Maersk Alabama", generated, 5,
-					startingPosition, destination));
-				break;
-			case 3:
-				generated *= 3;
-				ship = std::make_unique<TTanker>(TTanker("MV Sirius Star", generated, 3, 
-					startingPosition, destination));
-				break;
-		}
 
-		ModifyMaxVelocity(generated);
+		// TODO: how to set it?
+		int visibility = 5;
+
+		int generate = rand() % 3 + 1;
+		switch (generate)
+		{
+		case 1:
+			ship = std::make_unique<TPassenger>(TPassenger(shipInfo.Name, shipInfo.Velocity, visibility,
+				startingPosition, destination));
+			break;
+		case 2:
+			ship = std::make_unique<TBulkCarrier>(TBulkCarrier(shipInfo.Name, shipInfo.Velocity, visibility,
+				startingPosition, destination));
+			break;
+		case 3:
+			ship = std::make_unique<TTanker>(TTanker(shipInfo.Name, shipInfo.Velocity, visibility,
+				startingPosition, destination));
+			break;
+		default:
+			assert(false && "How did we get here?");
+		}
+	
+		// If new ship is the fastest, update max velocity.
+		CorrectMaxVelocity(shipInfo.Velocity);
+		
 		// Add ship to list.
 		Ships.push_back(std::move(ship));
-
 		IShip* shipInList = std::next(Ships.begin(), i)->get();
-		// Starting position's Y=10 generates erorrs.
 		Map.PlaceOnMap(shipInList->GetPosition(), shipInList);
 
 		// Debug.
 		shipInList->debug_IntroduceYourself();
 
+		++i;
 	} // for
+			
+	
+
+	
 	Pirate.debug_IntroduceYourself();
 	Map.debug_PrintMap();
 }
@@ -83,7 +96,7 @@ TCoordinates TGame::SetCivilianStartingDestination(TCoordinates position) const
 	return destination;
 }
 
-void TGame::ModifyMaxVelocity(float newVelocity)
+void TGame::CorrectMaxVelocity(float newVelocity)
 {
 	if (newVelocity > CurrentMaxVelocity)
 	{

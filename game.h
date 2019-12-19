@@ -4,6 +4,7 @@
 #define _GAME_H
 
 #include "map.h"
+#include "options.h"
 #include "ship.h"
 
 #include <memory>
@@ -13,7 +14,7 @@
 class TGame
 {
 public:
-	TGame(unsigned int mapWidth, unsigned int mapHeight);
+	TGame(options::TOptions& options);
 
 	~TGame()
 	{}
@@ -24,10 +25,12 @@ private:
 	TCoordinates SetCivilianStartingDestination(TCoordinates position) const;
 
 	// Save max velocity of the fastest ship and modify pirate's velocity.
-	void ModifyMaxVelocity(float newVelocity);
+	void CorrectMaxVelocity(float newVelocity);
 
 private:
 	TMap Map;
+
+	unsigned int SimulationTime;
 
 	std::list<std::unique_ptr<IShip>> Ships;
 
