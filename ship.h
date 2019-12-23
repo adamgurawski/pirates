@@ -33,7 +33,7 @@ public:
 	}
 
 protected:
-	IShip(const std::string& name, float velocity, int visibility, TCoordinates position,
+	IShip(const std::string& name, float velocity, float visibility, TCoordinates position,
 		TCoordinates destination) : Name(name), Velocity(velocity), Visibility(visibility),
 		Position(position), Destination(destination)
 	{}
@@ -47,7 +47,7 @@ protected:
 	float Velocity;
 
 	// Range of view.
-	int Visibility;
+	float Visibility;
 
 	// Position on a map.
 	TCoordinates Position;
@@ -81,7 +81,7 @@ public:
 
 
 protected:
-	ACivilian(const std::string& name, float velocity, int visibility, TCoordinates position,
+	ACivilian(const std::string& name, float velocity, float visibility, TCoordinates position,
 		TCoordinates destination, unsigned vulnerability = 100) :
 		IShip(name, velocity, visibility, position, destination), Vulnerability(vulnerability)
 	{}
@@ -101,7 +101,7 @@ protected:
 class TBulkCarrier : public ACivilian
 {
 public:
-	TBulkCarrier(const std::string& name, float velocity, int visibility, TCoordinates position,
+	TBulkCarrier(const std::string& name, float velocity, float visibility, TCoordinates position,
 		TCoordinates destination) : ACivilian(name, velocity, visibility, position, destination, 60)
 	{}
 
@@ -113,7 +113,7 @@ public:
 class TTanker : public ACivilian
 {
 public:
-	TTanker(const std::string& name, float velocity, int visibility, TCoordinates position,
+	TTanker(const std::string& name, float velocity, float visibility, TCoordinates position,
 		TCoordinates destination) : ACivilian(name, velocity, visibility, position, destination, 80)
 	{}
 
@@ -125,13 +125,15 @@ public:
 class TPassenger : public ACivilian
 {
 public:
-	TPassenger(const std::string& name, float velocity, int visibility, TCoordinates position,
+	TPassenger(const std::string& name, float velocity, float visibility, TCoordinates position,
 		TCoordinates destination) : ACivilian(name, velocity, visibility, position, destination, 30)
 	{}
 
 	virtual ~TPassenger() = default;
 };
 
+// TODO: find the way for a pirate to inherit from IShip in a way he can't get
+// an access to Target's fields.
 class TPirate : public IShip
 {
 public:
@@ -148,7 +150,7 @@ public:
 	
 	void ModifyVelocity(float baseVelocity)
 	{
-		Velocity = baseVelocity * 1.25;
+		Velocity = baseVelocity * 1.25f;
 	}
 
 	virtual void debug_IntroduceYourself() const override

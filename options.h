@@ -12,7 +12,7 @@ namespace options
 	struct TShipInfo
 	{
 		std::string Name;
-		int Velocity;
+		float Velocity;
 		int TimeToGeneration;
 	};
 
@@ -48,22 +48,32 @@ public:
 		return MapHeight;
 	}
 
-	std::vector<TShipInfo>& GetShips()
+	std::vector<TShipInfo>&& GetShipInfoVector()
 	{
-		return Ships;
+		return std::move(Ships);
+	}
+
+	bool IsGood() const
+	{
+		return Good;
 	}
 
 private:
 	// Input validation:
 
+	// Checks if exactly one -t/-m is present and minimum of one -s.
+	// Verifies that one (-t), two (-m), or three (-s) next arguments
+	// are not switches.
+	bool PreValidate() const;
+
 	/* Validates parameters. When wrong parameters (wrong values, wrong order) were passed or
 		"-h" present, returns false. Otherwise returns true. */
 	bool ValidateInput();
 
-	// Used by HandleShipList to terminate execution.
 	bool IsNotSwitch(int idx) const;
-	// Takes first ship's name's idx as parameter, adds ships to Ship vector.
-	void HandleShipList(int& idx);
+
+	// Takes first ship's name's idx as parameter, add its info to the vector.
+	void HandleShip(int& idx);
 
 	void HandleMapDimensions(int& widthIdx);
 
@@ -78,6 +88,7 @@ private:
 private:
 	int ArgCount;
 	const char** Args;
+	bool Good;
 
 	// Minimal number of args.
 	const int RequiredArgs = 10;
@@ -87,11 +98,9 @@ private:
 	unsigned int MapWidth;
 	unsigned int MapHeight;
 
-	// Based on this vector, the ships will be created by TGame.
+	// Based on data stored in this vector, the ships will be created by TGame.
 	std::vector<TShipInfo> Ships;
 };
-
-//void DisplayHelp();
 
 } // namespace options
 #endif // _OPTIONS_H

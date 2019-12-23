@@ -7,13 +7,13 @@
 #include <string>
 #include <vector>
 
-options::TOptions::TOptions(int argc, const char** argv) : ArgCount(argc), Args(argv)
+options::TOptions::TOptions(int argc, const char** argv) : ArgCount(argc), Args(argv),
+	Good(true)
 {
 	if (!ValidateInput())
 	{ 
+		Good = false;
 		DisplayHelp();
-		// TODO: return the nice way.
-		exit(-1);
 	}
 }
 
@@ -30,14 +30,65 @@ bool options::TOptions::InvalidNumberOfArguments() const
 }
 
 void options::TOptions::DisplayHelp() const
-{ // TODO: implement.
-	std::cout << "Help called, to be implemented." << std::endl;
+{ 
+	std::cout << "Help for Pirates:\n" <<
+		"In order to run simulation, pass these arguments in random order:\n" <<
+		"-t (int) time_of_simulation\n" <<
+		"-m (int int) map_width map_height\n" <<
+		"-s (string float int) ship_name ship_velocity time_to_generation.\n" <<
+		"Note that all of these switches are obligatory. There can't be more than one -t and -m " <<
+		"and there can be multiple -s (each representing one ship)." << std::endl;
+}
+
+bool options::TOptions::PreValidate() const
+{
+	bool timePresent = false, mapPresent = false, shipPresent = false;
+
+	for (int i = 1; i < ArgCount; ++i)
+	{
+		if (IsNotSwitch(i))
+			continue;
+		else
+		{
+			const std::string switchArg = Args[i];
+
+			if (switchArg == "-m")
+			{
+				if (!mapPresent)
+					mapPresent = true;
+				else
+				{ // More than one -m, error.
+					return false;
+				}
+			}
+			else if (switchArg == "-t")
+			{
+				if (!timePresent)
+					timePresent = true;
+				else
+				{ // More than one -t, error.
+					return false;
+				}
+			}
+			else if (switchArg == "-s")
+				shipPresent = true;
+
+		} // else
+	} // for
+
+	return shipPresent && timePresent && mapPresent;
 }
 
 bool options::TOptions::ValidateInput()
 {
 	if (ArgCount < RequiredArgs)
-		return InvalidNumberOfArguments();	
+		if (ArgCount == 2 && !strcmp(Args[1], "-h"))
+			return false;
+		else
+			return InvalidNumberOfArguments();
+
+	if (!PreValidate())
+		return InvalidFormatOfInput();
 
 	try
 	{
@@ -45,9 +96,13 @@ bool options::TOptions::ValidateInput()
 		{
 			const std::string parameter = Args[i];
 
-			if (parameter == "-s")
-			{ // Ship list.
-				HandleShipList(++i);
+			if (parameter == "-h")
+			{
+				return false;
+			}
+			else if (parameter == "-s")
+			{ // Ship info.
+				HandleShip(++i);
 			}
 			else if (parameter == "-m")
 			{ // Map dimenions.
@@ -58,17 +113,17 @@ bool options::TOptions::ValidateInput()
 				HandleSimulationTime(++i);
 			}
 			else
-			{
-				++i;
+			{ 
+				throw std::invalid_argument("Dummy");
 			}
 		}
 	}
 	catch (std::invalid_argument)
-	{ // std::stoi failed.
+	{ // std::stoi failed or wrong order of parameters (f.e. 4 params after -s switch)
 		return InvalidFormatOfInput();
 	}
 	catch (std::out_of_range)
-	{ // std::vector::at failed.
+	{ // (legacy?) std::vector::at failed.
 		return InvalidFormatOfInput();
 	}
 	catch (std::logic_error logic)
@@ -94,12 +149,14 @@ bool options::TOptions::IsNotSwitch(int idx) const
 		return true;
 }
 
-void options::TOptions::HandleShipList(int& idx)
-{
-	for (; idx + 1 < ArgCount && IsNotSwitch(idx);)
+void options::TOptions::HandleShip(int& idx)
+{	
+	int timeIdx = idx + 2;
+
+	if (!(timeIdx >= ArgCount))
 	{
 		std::string name = Args[idx++];
-		int velocity = std::stoi(Args[idx++]);
+		float velocity = std::stof(Args[idx++]);
 		int time = std::stoi(Args[idx++]);
 
 		if (velocity <= 0)
@@ -109,6 +166,10 @@ void options::TOptions::HandleShipList(int& idx)
 
 		TShipInfo ship({ name, velocity, time });
 		Ships.push_back(ship);
+	}
+	else
+	{
+		throw std::invalid_argument("Dummy");
 	}
 }
 

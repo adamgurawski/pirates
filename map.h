@@ -4,6 +4,7 @@
 #include "ship.h" // debug
 class IShip;
 
+#include <iomanip> // debug
 #include <iostream> // debug
 #include <map>
 #include <memory>
@@ -59,25 +60,25 @@ public:
 	{
 		for (int y = Height - 1; y >= 0; y--)
 		{
-			std::cout << y << " ";
+			std::cout << std::setw(2) << y << " ";
 			for (unsigned int x = 0; x < Width; ++x)
 			{
 				if (IsEmpty({ x, static_cast<unsigned int>(y) }))
-					std::cout << " .";
+					std::cout << " . ";
 				else
 				{
 					// Debug.
 					if (dynamic_cast<const TPirate*>(Map.at({ x, static_cast<unsigned int>(y) })))
-						std::cout << " O";
+						std::cout << " O ";
 					else
-						std::cout << " X";
+						std::cout << " X ";
 				}
 			}
 			std::cout << std::endl;
 		}
 		std::cout << "   ";
-		for (int j = 0; j < Width; j++)
-			std::cout << j << " ";
+		for (unsigned int j = 0; j < Width; j++)
+			std::cout << std::setw(2) << j << " ";
 		std::cout << std::endl;
 	}
 

@@ -9,25 +9,22 @@ TGame::TGame(options::TOptions& options)
 	SimulationTime(options.GetSimulationTime())
 {
 	// Srand must be called before Map.RollPiratesPosition.
-	srand(time(NULL));
+	srand(static_cast<unsigned int>(time(NULL)));
 
 	// Create pirate and place it on the map.
 	Pirate = TPirate(0, 5, Map.RollPiratesPosition(), { 0,0 });
 	Map.PlaceOnMap(Pirate.GetPosition(), &Pirate);
 
-	std::vector<options::TShipInfo> shipInfoVector = options.GetShips();
+	std::vector<options::TShipInfo> shipInfoVector = options.GetShipInfoVector();
 	
-	// Temp helper for inserting to list. TODO: delete.
-	int i = 0;
 	for (options::TShipInfo shipInfo: shipInfoVector)
 	{
 		TCoordinates startingPosition = Map.RollCivilianPosition();
 		TCoordinates destination = SetCivilianStartingDestination(startingPosition);
 		std::unique_ptr<IShip> ship;
 
-
-		// TODO: how to set it?
-		int visibility = 5;
+		// TODO: how to set visibility?
+		float visibility = 5.0f;
 
 		int generate = rand() % 3 + 1;
 		switch (generate)
@@ -53,18 +50,15 @@ TGame::TGame(options::TOptions& options)
 		
 		// Add ship to list.
 		Ships.push_back(std::move(ship));
-		IShip* shipInList = std::next(Ships.begin(), i)->get();
-		Map.PlaceOnMap(shipInList->GetPosition(), shipInList);
+
+		// Place added ship on a map.
+		const IShip* addedShip = Ships.back().get();
+		Map.PlaceOnMap(addedShip->GetPosition(), addedShip);
 
 		// Debug.
-		shipInList->debug_IntroduceYourself();
-
-		++i;
+		addedShip->debug_IntroduceYourself();
 	} // for
 			
-	
-
-	
 	Pirate.debug_IntroduceYourself();
 	Map.debug_PrintMap();
 }
