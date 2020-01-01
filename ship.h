@@ -19,6 +19,14 @@ public:
 
 	virtual TCoordinates GetPosition() const = 0;
 	virtual void debug_IntroduceYourself() const = 0;
+
+protected:
+	/* I want only TGame to be able to ask for ship's desination. Pirate has const pointer
+		 to a target its following, so it would be able to ask for destination if GetDestination
+		 was public, which makes little sense (why would a prey give its plans to the predator?). */
+	virtual TCoordinates GetDestination() const = 0;
+
+	friend class TGame;
 };
 
 class AShip : public IShip
@@ -46,6 +54,11 @@ protected:
 		TCoordinates destination) : Name(name), Velocity(velocity), Visibility(visibility),
 		Position(position), Destination(destination)
 	{}
+
+	virtual TCoordinates GetDestination() const override
+	{
+		return Destination;
+	}
 
 protected:
 	// Name. Separate identificator to be added? Is it neccessary?

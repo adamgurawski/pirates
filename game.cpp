@@ -22,6 +22,27 @@ TGame::TGame(options::TOptions& options)
 	Map.debug_PrintMap();
 }
 
+bool TGame::Run()
+{ // TODO: implement Run().
+	for (; CurrentTime < SimDuration; ++CurrentTime)
+	{
+		GenerateShips();
+		RunTurn();
+	}
+
+	return true;
+}
+
+/* 1. Move the civilians.	
+	 2. If one can get out of map, acknowledge it.
+	 3. Move the pirate.
+	 4. Check whether it has an opportunity to attack other ship.
+	 5. Attack ships, acknowledge if destroyed.*/
+bool TGame::RunTurn()
+{
+	return true;
+}
+
 void TGame::CreateShip(const TShipInfo& shipInfo)
 { // TODO: throw exception when there is no available space on map?
 	TCoordinates startingPosition = Map.RollCivilianPosition();
@@ -75,25 +96,18 @@ void TGame::GenerateShips()
 	}
 }
 
-bool TGame::Run()
-{ // TODO: implement Run().
-	for (; CurrentTime < SimDuration; ++CurrentTime)
-	{
-		GenerateShips();
-		RunTurn();
-	}
-
-	return true;
+void TGame::Move(TGame::TShipPtr& ship)
+{ // TODO: implement
+	TCoordinates destination = ship->GetDestination();
+	TCoordinates position = ship->GetPosition();
 }
 
-/* 1. Move the civilians.	
-	 2. If one can get out of map, acknowledge it.
-	 3. Move the pirate.
-	 4. Check whether it has an opportunity to attack other ship.
-	 5. Attack ships, acknowledge if destroyed.*/
-bool TGame::RunTurn()
+void TGame::MoveCivilians()
 {
-	return true;
+	for (TGame::TShipPtr& ship : Ships)
+	{
+		Move(ship);
+	}
 }
 
 TCoordinates TGame::SetCivilianStartingDestination(TCoordinates position) const
