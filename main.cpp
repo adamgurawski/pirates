@@ -8,11 +8,11 @@ int main(int argc, const char** argv)
 {
 	options::TOptions options(argc, argv);
 
-	if (!options.IsGood())
+	if (!options.IsValid())
 		return -1;
 
 	TGame game(options);
-	
+
 	//game.Run();
 
 	std::cin.get();

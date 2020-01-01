@@ -5,20 +5,11 @@
 
 #include <string>
 #include <utility>
-#include <vector>
-
-namespace options
-{
-	struct TShipInfo
-	{
-		std::string Name;
-		float Velocity;
-		int TimeToGeneration;
-	};
+#include <set>
 
 /*	Required arguments :
 	(default) program name
-		- s (ship list)
+		- s (ship)
 		ship name
 		ship speed
 		ship time
@@ -27,7 +18,28 @@ namespace options
 		width
 		-t (time)
 		time in seconds */
-	
+
+struct TShipInfo
+{
+	std::string Name;
+	float Velocity;
+	int TimeToGeneration;
+};
+
+// Comparer used by ship info set.
+struct TTimeComparer
+{
+	bool operator()(TShipInfo lhs, TShipInfo rhs) const
+	{
+		return lhs.TimeToGeneration < rhs.TimeToGeneration;
+	}
+};
+
+using TShipInfoSet = std::multiset<TShipInfo, TTimeComparer>;
+
+namespace options
+{
+
 class TOptions
 {
 public:
@@ -48,14 +60,14 @@ public:
 		return MapHeight;
 	}
 
-	std::vector<TShipInfo>&& GetShipInfoVector()
+	TShipInfoSet&& GetShipInfo()
 	{
 		return std::move(Ships);
 	}
 
-	bool IsGood() const
+	bool IsValid() const
 	{
-		return Good;
+		return ValidParams;
 	}
 
 private:
@@ -88,7 +100,7 @@ private:
 private:
 	int ArgCount;
 	const char** Args;
-	bool Good;
+	bool ValidParams;
 
 	// Minimal number of args.
 	const int RequiredArgs = 10;
@@ -98,8 +110,10 @@ private:
 	unsigned int MapWidth;
 	unsigned int MapHeight;
 
-	// Based on data stored in this vector, the ships will be created by TGame.
-	std::vector<TShipInfo> Ships;
+	// Based on data stored in this vector, the ships will be created by TGame
+	// Update: changed into multiset in order to allow sorted inserting.
+	// TODO: verify that elements are inserted in desired order.
+	TShipInfoSet Ships;
 };
 
 } // namespace options

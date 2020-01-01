@@ -6,65 +6,93 @@
 
 TGame::TGame(options::TOptions& options)
 	: Map({ options.GetMapWidth(), options.GetMapHeight() }),
-	SimulationTime(options.GetSimulationTime())
+	SimDuration(options.GetSimulationTime()), CurrentTime(0)
 {
 	// Srand must be called before Map.RollPiratesPosition.
 	srand(static_cast<unsigned int>(time(NULL)));
 
 	// Create pirate and place it on the map.
-	Pirate = TPirate(0, 5, Map.RollPiratesPosition(), { 0,0 });
+	Pirate = TPirate(1, 5, Map.RollPiratesPosition(), { 0,0 });
 	Map.PlaceOnMap(Pirate.GetPosition(), &Pirate);
 
-	std::vector<options::TShipInfo> shipInfoVector = options.GetShipInfoVector();
-	
-	for (options::TShipInfo shipInfo: shipInfoVector)
-	{
-		TCoordinates startingPosition = Map.RollCivilianPosition();
-		TCoordinates destination = SetCivilianStartingDestination(startingPosition);
-		std::unique_ptr<IShip> ship;
-
-		// TODO: how to set visibility?
-		float visibility = 5.0f;
-
-		int generate = rand() % 3 + 1;
-		switch (generate)
-		{
-		case 1:
-			ship = std::make_unique<TPassenger>(TPassenger(shipInfo.Name, shipInfo.Velocity, visibility,
-				startingPosition, destination));
-			break;
-		case 2:
-			ship = std::make_unique<TBulkCarrier>(TBulkCarrier(shipInfo.Name, shipInfo.Velocity, visibility,
-				startingPosition, destination));
-			break;
-		case 3:
-			ship = std::make_unique<TTanker>(TTanker(shipInfo.Name, shipInfo.Velocity, visibility,
-				startingPosition, destination));
-			break;
-		default:
-			assert(false && "How did we get here?");
-		}
-	
-		// If new ship is the fastest, update max velocity.
-		CorrectMaxVelocity(shipInfo.Velocity);
-		
-		// Add ship to list.
-		Ships.push_back(std::move(ship));
-
-		// Place added ship on a map.
-		const IShip* addedShip = Ships.back().get();
-		Map.PlaceOnMap(addedShip->GetPosition(), addedShip);
-
-		// Debug.
-		addedShip->debug_IntroduceYourself();
-	} // for
+	ShipsInfo = options.GetShipInfo();
+	GenerateShips();
 			
 	Pirate.debug_IntroduceYourself();
 	Map.debug_PrintMap();
 }
 
+void TGame::CreateShip(const TShipInfo& shipInfo)
+{ // TODO: throw exception when there is no available space on map?
+	TCoordinates startingPosition = Map.RollCivilianPosition();
+	TCoordinates destination = SetCivilianStartingDestination(startingPosition);
+	std::unique_ptr<IShip> ship;
+
+	// TODO: how to set visibility?
+	float visibility = 5.0f;
+
+	int generate = rand() % 3 + 1;
+	switch (generate)
+	{
+	case 1:
+		ship = std::make_unique<TPassenger>(TPassenger(shipInfo.Name, shipInfo.Velocity, visibility,
+			startingPosition, destination));
+		break;
+	case 2:
+		ship = std::make_unique<TBulkCarrier>(TBulkCarrier(shipInfo.Name, shipInfo.Velocity, visibility,
+			startingPosition, destination));
+		break;
+	case 3:
+		ship = std::make_unique<TTanker>(TTanker(shipInfo.Name, shipInfo.Velocity, visibility,
+			startingPosition, destination));
+		break;
+	default:
+		assert(false && "How did we get here?");
+	}
+
+	// If new ship is the fastest, update max velocity.
+	CorrectMaxVelocity(shipInfo.Velocity);
+
+	// Add ship to list.
+	Ships.push_back(std::move(ship));
+
+	// Place added ship on a map.
+	const IShip* addedShip = Ships.back().get();
+	Map.PlaceOnMap(addedShip->GetPosition(), addedShip);
+
+	// Debug.
+	addedShip->debug_IntroduceYourself();
+}
+
+void TGame::GenerateShips()
+{
+	TShipInfoSet::iterator it = ShipsInfo.begin();
+
+	while (it != ShipsInfo.end() && it->TimeToGeneration == CurrentTime)
+	{
+		CreateShip(*it);
+		it = ShipsInfo.erase(it);
+	}
+}
+
 bool TGame::Run()
 { // TODO: implement Run().
+	for (; CurrentTime < SimDuration; ++CurrentTime)
+	{
+		GenerateShips();
+		RunTurn();
+	}
+
+	return true;
+}
+
+/* 1. Move the civilians.	
+	 2. If one can get out of map, acknowledge it.
+	 3. Move the pirate.
+	 4. Check whether it has an opportunity to attack other ship.
+	 5. Attack ships, acknowledge if destroyed.*/
+bool TGame::RunTurn()
+{
 	return true;
 }
 

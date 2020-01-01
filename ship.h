@@ -14,12 +14,21 @@ struct TCoordinates
 class IShip
 {
 public:
-	// Needed by TGame's constructor.
 	IShip() = default;
-
 	virtual ~IShip() = default;
 
-	TCoordinates GetPosition() const
+	virtual TCoordinates GetPosition() const = 0;
+	virtual void debug_IntroduceYourself() const = 0;
+};
+
+class AShip : public IShip
+{
+public:
+	// Needed by TGame's constructor.
+	AShip() = default;
+	virtual ~AShip() = default;
+
+	virtual TCoordinates GetPosition() const override
 	{
 		return Position;
 	}
@@ -33,11 +42,10 @@ public:
 	}
 
 protected:
-	IShip(const std::string& name, float velocity, float visibility, TCoordinates position,
+	AShip(const std::string& name, float velocity, float visibility, TCoordinates position,
 		TCoordinates destination) : Name(name), Velocity(velocity), Visibility(visibility),
 		Position(position), Destination(destination)
 	{}
-
 
 protected:
 	// Name. Separate identificator to be added? Is it neccessary?
@@ -57,7 +65,7 @@ protected:
 };
 
 // Common base class for all of civilian ships (potential pirate targets).
-class ACivilian : public IShip
+class ACivilian : public AShip
 {
 public:
 	virtual ~ACivilian() = default;
@@ -74,7 +82,7 @@ public:
 
 	virtual void debug_IntroduceYourself() const override
 	{
-		IShip::debug_IntroduceYourself();
+		AShip::debug_IntroduceYourself();
 		std::cout << "Vulnerability: " << Vulnerability << std::endl <<
 			"Attacked: " << std::boolalpha << Attacked << std::endl;
 	}
@@ -83,7 +91,7 @@ public:
 protected:
 	ACivilian(const std::string& name, float velocity, float visibility, TCoordinates position,
 		TCoordinates destination, unsigned vulnerability = 100) :
-		IShip(name, velocity, visibility, position, destination), Vulnerability(vulnerability)
+		AShip(name, velocity, visibility, position, destination), Vulnerability(vulnerability)
 	{}
 
 
@@ -132,13 +140,11 @@ public:
 	virtual ~TPassenger() = default;
 };
 
-// TODO: find the way for a pirate to inherit from IShip in a way he can't get
-// an access to Target's fields.
-class TPirate : public IShip
+class TPirate : public AShip
 {
 public:
 	TPirate(float velocity, float visibility,
-		TCoordinates position, TCoordinates destination) : IShip("The Green Oyster",
+		TCoordinates position, TCoordinates destination) : AShip("The Green Oyster",
 			velocity, visibility, position, destination), Target(nullptr)
 	{}
 
@@ -156,7 +162,7 @@ public:
 	virtual void debug_IntroduceYourself() const override
 	{
 		std::cout << "Argghh!" << std::endl;
-		IShip::debug_IntroduceYourself();
+		AShip::debug_IntroduceYourself();
 	}
 
 private:

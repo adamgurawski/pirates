@@ -69,9 +69,9 @@ public:
 				{
 					// Debug.
 					if (dynamic_cast<const TPirate*>(Map.at({ x, static_cast<unsigned int>(y) })))
-						std::cout << " O ";
-					else
 						std::cout << " X ";
+					else
+						std::cout << " O ";
 				}
 			}
 			std::cout << std::endl;

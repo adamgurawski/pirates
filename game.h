@@ -15,13 +15,20 @@ class TGame
 {
 public:
 	TGame(options::TOptions& options);
-
-	~TGame()
-	{}
+	~TGame() = default;
 
 	bool Run();
 
+	bool RunTurn();
+
 private:
+	// Create a ship and place it on the map.
+	void CreateShip(const TShipInfo& shipInfo);
+
+	// Create ships which time of generation equals CurrentTime and erase their info
+	// from ship info set.
+	void GenerateShips();
+
 	TCoordinates SetCivilianStartingDestination(TCoordinates position) const;
 
 	// Save max velocity of the fastest ship and modify pirate's velocity.
@@ -30,7 +37,12 @@ private:
 private:
 	TMap Map;
 
-	unsigned int SimulationTime;
+	unsigned int CurrentTime;
+
+	unsigned int SimDuration;
+
+	// Stores information about ships to be generated sorted ascending by time to generation.
+	TShipInfoSet ShipsInfo;
 
 	std::list<std::unique_ptr<IShip>> Ships;
 

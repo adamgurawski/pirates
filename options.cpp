@@ -8,11 +8,11 @@
 #include <vector>
 
 options::TOptions::TOptions(int argc, const char** argv) : ArgCount(argc), Args(argv),
-	Good(true)
+	ValidParams(true)
 {
 	if (!ValidateInput())
 	{ 
-		Good = false;
+		ValidParams = false;
 		DisplayHelp();
 	}
 }
@@ -165,7 +165,7 @@ void options::TOptions::HandleShip(int& idx)
 			throw std::logic_error("Time value cannot be negative.");
 
 		TShipInfo ship({ name, velocity, time });
-		Ships.push_back(ship);
+		Ships.insert(ship);
 	}
 	else
 	{
