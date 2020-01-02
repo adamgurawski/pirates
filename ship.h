@@ -14,31 +14,41 @@ struct TCoordinates
 class IShip
 {
 public:
-	IShip() = default;
 	virtual ~IShip() = default;
 
 	virtual TCoordinates GetPosition() const = 0;
+	virtual void ChangeDestination(TCoordinates coordinates) = 0;
 	virtual void debug_IntroduceYourself() const = 0;
 
 protected:
-	/* I want only TGame to be able to ask for ship's desination. Pirate has const pointer
-		 to a target its following, so it would be able to ask for destination if GetDestination
-		 was public, which makes little sense (why would a prey give its plans to the predator?). */
-	virtual TCoordinates GetDestination() const = 0;
-
-	friend class TGame;
+	IShip() = default;
 };
 
-class AShip : public IShip
+// Interface providing GetDestination functionality - only to be used by TGame.
+class IShipEx : public IShip
 {
 public:
-	// Needed by TGame's constructor.
-	AShip() = default;
+	virtual ~IShipEx() = default;
+
+	virtual TCoordinates GetDestination() const = 0;
+
+protected:
+	IShipEx() = default;
+};
+
+class AShip : public IShipEx
+{
+public:
 	virtual ~AShip() = default;
 
 	virtual TCoordinates GetPosition() const override
 	{
 		return Position;
+	}
+
+	virtual void ChangeDestination(TCoordinates coordinates) override
+	{
+		Destination = coordinates;
 	}
 
 	virtual void debug_IntroduceYourself() const
@@ -49,16 +59,19 @@ public:
 			"Destination: " << Destination.X << " " << Destination.Y << std::endl;
 	}
 
-protected:
-	AShip(const std::string& name, float velocity, float visibility, TCoordinates position,
-		TCoordinates destination) : Name(name), Velocity(velocity), Visibility(visibility),
-		Position(position), Destination(destination)
-	{}
-
 	virtual TCoordinates GetDestination() const override
 	{
 		return Destination;
 	}
+
+protected:
+	// Needed by TGame's constructor in order to construct empty TPirate.
+	AShip() = default;
+
+	AShip(const std::string& name, float velocity, float visibility, TCoordinates position,
+		TCoordinates destination) : Name(name), Velocity(velocity), Visibility(visibility),
+		Position(position), Destination(destination)
+	{}
 
 protected:
 	// Name. Separate identificator to be added? Is it neccessary?
@@ -99,7 +112,6 @@ public:
 		std::cout << "Vulnerability: " << Vulnerability << std::endl <<
 			"Attacked: " << std::boolalpha << Attacked << std::endl;
 	}
-
 
 protected:
 	ACivilian(const std::string& name, float velocity, float visibility, TCoordinates position,
@@ -153,7 +165,7 @@ public:
 	virtual ~TPassenger() = default;
 };
 
-class TPirate : public AShip
+class TPirate final : public AShip
 {
 public:
 	TPirate(float velocity, float visibility,
@@ -165,7 +177,7 @@ public:
 	TPirate() = default;
 
 	// Do not call "delete" on Target, pirate does not own this pointer.
-	virtual ~TPirate() = default;
+	~TPirate() = default;
 	
 	void ModifyVelocity(float baseVelocity)
 	{

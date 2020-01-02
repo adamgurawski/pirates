@@ -35,14 +35,14 @@ struct TTimeComparer
 	}
 };
 
-using TShipInfoSet = std::multiset<TShipInfo, TTimeComparer>;
-
 namespace options
 {
 
 class TOptions
 {
 public:
+	using TShipInfoSet = std::multiset<TShipInfo, TTimeComparer>;
+
 	TOptions(int argc, const char** argv);
 
 	unsigned int GetSimulationTime() const

@@ -33,13 +33,18 @@ bool TGame::Run()
 	return true;
 }
 
-/* 1. Move the civilians.	
-	 2. If one can get out of map, acknowledge it.
-	 3. Move the pirate.
-	 4. Check whether it has an opportunity to attack other ship.
-	 5. Attack ships, acknowledge if destroyed.*/
+/* 1. Check whether civilians see the pirate.
+	 2. Move the civilians.	
+	 3. If one can get out of map, acknowledge it.
+	 4. Move the pirate.
+	 5. Check whether it has an opportunity to attack other ship.
+	 6. Attack ships, acknowledge if destroyed.*/
 bool TGame::RunTurn()
 {
+	// LookForPirates();
+	MoveCivilians();
+
+
 	return true;
 }
 
@@ -47,7 +52,7 @@ void TGame::CreateShip(const TShipInfo& shipInfo)
 { // TODO: throw exception when there is no available space on map?
 	TCoordinates startingPosition = Map.RollCivilianPosition();
 	TCoordinates destination = SetCivilianStartingDestination(startingPosition);
-	std::unique_ptr<IShip> ship;
+	TShipPtr ship;
 
 	// TODO: how to set visibility?
 	float visibility = 5.0f;
@@ -56,16 +61,16 @@ void TGame::CreateShip(const TShipInfo& shipInfo)
 	switch (generate)
 	{
 	case 1:
-		ship = std::make_unique<TPassenger>(TPassenger(shipInfo.Name, shipInfo.Velocity, visibility,
-			startingPosition, destination));
+		ship = std::make_unique<TPassenger>(shipInfo.Name, shipInfo.Velocity, visibility, 
+			startingPosition, destination);
 		break;
 	case 2:
-		ship = std::make_unique<TBulkCarrier>(TBulkCarrier(shipInfo.Name, shipInfo.Velocity, visibility,
-			startingPosition, destination));
+		ship = std::make_unique<TBulkCarrier>(shipInfo.Name, shipInfo.Velocity, visibility,
+			startingPosition, destination);
 		break;
 	case 3:
-		ship = std::make_unique<TTanker>(TTanker(shipInfo.Name, shipInfo.Velocity, visibility,
-			startingPosition, destination));
+		ship = std::make_unique<TTanker>(shipInfo.Name, shipInfo.Velocity, visibility,
+			startingPosition, destination);
 		break;
 	default:
 		assert(false && "How did we get here?");
@@ -104,10 +109,15 @@ void TGame::Move(TGame::TShipPtr& ship)
 
 void TGame::MoveCivilians()
 {
-	for (TGame::TShipPtr& ship : Ships)
+	for (TShipPtr& ship : Ships)
 	{
 		Move(ship);
 	}
+}
+
+void TGame::LookForPirates()
+{ // TODO: !! implement.
+
 }
 
 TCoordinates TGame::SetCivilianStartingDestination(TCoordinates position) const

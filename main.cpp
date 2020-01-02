@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+// TODO: !! implement TGame::Move (find a way to calculate distance to move a ship in one round).
+
 int main(int argc, const char** argv)
 {
 	options::TOptions options(argc, argv);
@@ -13,7 +15,7 @@ int main(int argc, const char** argv)
 
 	TGame game(options);
 
-	//game.Run();
+	bool ok = game.Run();
 
 	std::cin.get();
 	return 0;

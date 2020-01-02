@@ -11,10 +11,13 @@
 #include <string>
 #include <list>
 
+/* Responsible for running the game.
+*/
 class TGame
 {
 public:
-	using TShipPtr = std::unique_ptr<IShip>;
+	using TShipPtr = std::unique_ptr<IShipEx>;
+	using TShipInfoSet = std::multiset<TShipInfo, TTimeComparer>;
 
 	TGame(options::TOptions& options);
 	~TGame() = default;
@@ -34,8 +37,11 @@ private:
 	// Change ships position and change its coordinates on map.
 	void Move(TShipPtr& ship);
 
-	// Move all of civilian ships.
+	// Move all civilians.
 	void MoveCivilians();
+
+	// Check whether any ship sees the pirates. If so, change its destination.
+	void LookForPirates();
 
 	TCoordinates SetCivilianStartingDestination(TCoordinates position) const;
 
@@ -50,8 +56,11 @@ private:
 	unsigned int SimDuration;
 
 	// Stores information about ships to be generated sorted ascending by time to generation.
+	// (the closer to generation the higher in set)
+	// When a ship gets created, it is added to Ship list and also deleted from shipInfo set.
 	TShipInfoSet ShipsInfo;
 
+	// List of generated ships.
 	std::list<TShipPtr> Ships;
 
 	// Number of pirate's attack attempts.
