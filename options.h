@@ -17,7 +17,7 @@
 		length
 		width
 		-t (time)
-		time in seconds */
+		time in "time units" */
 
 struct TShipInfo
 {

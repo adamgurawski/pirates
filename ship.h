@@ -1,6 +1,10 @@
 #ifndef _SHIP_H
 #define _SHIP_H
 
+/* The problem is that I want three separate interfaces (IShip, ICivilian, IPirate), but
+	 TPirate and civilians have many common fields, so they should inherit from common class
+	 (f.e. AShip as it was before). */
+
 struct TCoordinates
 {
 	unsigned int X = 0;
@@ -16,53 +20,45 @@ class IShip
 public:
 	virtual ~IShip() = default;
 
+	virtual float GetVelocity() const = 0;
+	virtual float GetRangeOfView() const = 0;
 	virtual TCoordinates GetPosition() const = 0;
-	virtual void ChangeDestination(TCoordinates coordinates) = 0;
 	virtual void debug_IntroduceYourself() const = 0;
+	virtual void Move(TCoordinates coordinates) = 0;
 
 protected:
 	IShip() = default;
 };
 
-// Interface providing GetDestination functionality - only to be used by TGame.
-class IShipEx : public IShip
+class ICivilian : public IShip
 {
 public:
-	virtual ~IShipEx() = default;
+	virtual ~ICivilian() = default;
 
+	virtual bool IsRunningAway() const = 0;
+	virtual void SetRunningAway() = 0;
 	virtual TCoordinates GetDestination() const = 0;
+	virtual void ChangeDestination(TCoordinates coordinates) = 0;
 
 protected:
-	IShipEx() = default;
+	ICivilian() = default;
 };
 
-class AShip : public IShipEx
+class AShip : public ICivilian
 {
 public:
 	virtual ~AShip() = default;
 
-	virtual TCoordinates GetPosition() const override
-	{
-		return Position;
-	}
+	virtual void debug_IntroduceYourself() const;
 
-	virtual void ChangeDestination(TCoordinates coordinates) override
-	{
-		Destination = coordinates;
-	}
+	virtual bool IsRunningAway() const override;
+	virtual void SetRunningAway() override;
+	virtual float GetVelocity() const override;
+	virtual float GetRangeOfView() const override;
+	virtual TCoordinates GetPosition() const override;
+	virtual TCoordinates GetDestination() const override;
 
-	virtual void debug_IntroduceYourself() const
-	{
-		std::cout << "Name: " << Name << std::endl << "Velocity: " <<
-			Velocity << std::endl << "Visibility: " << Visibility << std::endl <<
-			"Position: [" << Position.X << " " << Position.Y << "]" << std::endl <<
-			"Destination: " << Destination.X << " " << Destination.Y << std::endl;
-	}
-
-	virtual TCoordinates GetDestination() const override
-	{
-		return Destination;
-	}
+	virtual void ChangeDestination(TCoordinates coordinates) override;
 
 protected:
 	// Needed by TGame's constructor in order to construct empty TPirate.
@@ -70,12 +66,20 @@ protected:
 
 	AShip(const std::string& name, float velocity, float visibility, TCoordinates position,
 		TCoordinates destination) : Name(name), Velocity(velocity), Visibility(visibility),
-		Position(position), Destination(destination)
+		Position(position), Destination(destination), RunningAway(false)
 	{}
+
+	virtual void Move(TCoordinates coordinates) override
+	{
+		Position = coordinates;
+	}
 
 protected:
 	// Name. Separate identificator to be added? Is it neccessary?
 	std::string Name;
+
+	// True if ship has spotted the pirates and changed its destination.
+	bool RunningAway;
 
 	// Speed.
 	float Velocity;
@@ -165,12 +169,12 @@ public:
 	virtual ~TPassenger() = default;
 };
 
-class TPirate final : public AShip
+class TPirate final : public IShip
 {
 public:
-	TPirate(float velocity, float visibility,
-		TCoordinates position, TCoordinates destination) : AShip("The Green Oyster",
-			velocity, visibility, position, destination), Target(nullptr)
+	TPirate(float velocity, float visibility, TCoordinates position, TCoordinates destination) : 
+		Name("The Green Oyster"), Velocity(velocity), Visibility(visibility), Position(position), 
+		Destination(destination), Target(nullptr)
 	{}
 
 	// Needed by TGame's constructor.
@@ -179,20 +183,32 @@ public:
 	// Do not call "delete" on Target, pirate does not own this pointer.
 	~TPirate() = default;
 	
-	void ModifyVelocity(float baseVelocity)
+	// IShip overrides:
+	virtual float GetVelocity() const override;
+	virtual float GetRangeOfView() const override;
+	virtual TCoordinates GetPosition() const override;
+
+	void ModifyVelocity(float baseVelocity);
+	void ChangeTarget(const IShip* target);
+	const IShip* GetTarget() const;
+
+	virtual void Move(TCoordinates coordinates) override
 	{
-		Velocity = baseVelocity * 1.25f;
+		Position = coordinates;
 	}
 
-	virtual void debug_IntroduceYourself() const override
-	{
-		std::cout << "Argghh!" << std::endl;
-		AShip::debug_IntroduceYourself();
-	}
+	virtual void debug_IntroduceYourself() const override;
 
 private:
 	// Const pointer to a ship the pirate is following. Can be null (no target).
 	const IShip* Target;
+
+	// Common fields for Pirate and civilians.
+	std::string Name;
+	float Velocity;
+	float Visibility;
+	TCoordinates Position;
+	TCoordinates Destination;
 };
 
 #endif // _SHIP_H

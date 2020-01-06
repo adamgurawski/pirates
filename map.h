@@ -19,19 +19,7 @@ struct TCoordinates
 
 struct TCoordinatesComparer
 {
-	bool operator()(TCoordinates lhs, TCoordinates rhs) const
-	{
-		if (lhs.X == rhs.X)
-		{
-			return lhs.Y < rhs.Y;
-		}
-		else if (lhs.Y == rhs.Y)
-		{
-			return lhs.X < rhs.X;
-		}
-		else
-			return (lhs.X < rhs.X);
-	}
+	bool operator()(TCoordinates lhs, TCoordinates rhs) const;
 };
 
 class TMap
@@ -84,6 +72,18 @@ public:
 
 	// Returns true if new ship was added, false when the field was not nullptr.
 	bool PlaceOnMap(TCoordinates coordinates, const IShip* ship);
+
+	// Returns the closest point to leave the map.
+	TCoordinates CalculateClosestExit(TCoordinates coordinates) const;
+
+	// Check whether target is seen by ship which position is center.
+	bool IsInRange(const TCoordinates& center, float visibility, 
+		const TCoordinates& target) const;
+
+	void Move(const IShip* ship, const TCoordinates& target);
+
+	// Nullify coordinates (ship destroyed / changed position).
+	void Remove(const TCoordinates& coordinates);
 
 private:
 	bool IsEmpty(TCoordinates coordinates) const

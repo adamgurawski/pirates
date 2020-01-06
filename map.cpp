@@ -1,7 +1,22 @@
 #include "map.h"
 
+#include <cmath> // sqrt(), abs()
 #include <random> // rand()
 #include <cassert> // assert
+
+bool TCoordinatesComparer::operator()(TCoordinates lhs, TCoordinates rhs) const
+{
+	if (lhs.X == rhs.X)
+	{
+		return lhs.Y < rhs.Y;
+	}
+	else if (lhs.Y == rhs.Y)
+	{
+		return lhs.X < rhs.X;
+	}
+	else
+		return (lhs.X < rhs.X);
+}
 
 TCoordinates TMap::RollCivilianPosition() const
 {
@@ -63,6 +78,98 @@ bool TMap::PlaceOnMap(TCoordinates coordinates, const IShip* ship)
 	{
 		return false;
 	}
+}
+
+TCoordinates TMap::CalculateClosestExit(TCoordinates coordinates) const
+{ // TODO: make it prettier.
+	assert(Height > 0 && Width > 0);
+
+	int maxX = Width - 1;
+	int maxY = Height - 1;
+
+	int x = coordinates.X;
+	int y = coordinates.Y;
+
+	enum class TRoute
+	{
+		INVALID = 0,
+		UP,
+		DOWN,
+		LEFT,
+		RIGHT,
+	};
+
+	TRoute route = TRoute::INVALID;
+
+	int smallestDistance;
+
+	if (maxY > maxX)
+		smallestDistance = maxY;
+	else
+		smallestDistance = maxX;
+
+	// TODO: verify that there are no errors (f.e. when current coordinates are in the middle).
+	if (maxY - y < smallestDistance)
+	{
+		smallestDistance = maxY - y;
+		route = TRoute::UP;
+	}
+	if (y < smallestDistance)
+	{
+		smallestDistance = y;
+		route = TRoute::DOWN;
+	}
+	if (maxX - x < smallestDistance)
+	{
+		smallestDistance = maxX - x;
+		route = TRoute::RIGHT;
+	}
+	if (x < smallestDistance)
+	{
+		smallestDistance = x;
+		route = TRoute::LEFT;
+	}
+
+	switch (route)
+	{
+	case TRoute::UP:
+		return { coordinates.X, static_cast<unsigned>(maxY) };
+	case TRoute::DOWN:
+		return { coordinates.X, 0 };
+	case TRoute::LEFT:
+		return { 0, coordinates.Y };
+	case TRoute::RIGHT:
+		return { static_cast<unsigned>(maxX), coordinates.Y };
+	default:
+		assert(false && "Invalid route.");
+		throw std::logic_error("Something went wrong in calculating closest exit.");
+	}
+}
+
+bool TMap::IsInRange(const TCoordinates& center, float visibility, 
+	const TCoordinates& target) const
+{ // TODO: verify correctness.
+	float distance = static_cast<float>(std::abs(std::sqrt(std::pow(center.X - target.X, 2) + 
+		std::pow(center.Y - target.Y, 2))));
+
+	if (visibility > distance)
+		return true;
+	else
+		return false;
+}
+
+void TMap::Move(const IShip* ship, const TCoordinates& target)
+{ // TODO: throw exception when can't move there?
+	Remove(ship->GetPosition());
+	auto it = Map.find(target);
+	it->second = ship;
+}
+
+// Nullify ship at specified coordinates (ship destroyed / left the map).
+void TMap::Remove(const TCoordinates& coordinates)
+{
+	auto it = Map.find(coordinates);
+	it->second = nullptr;
 }
 
 void TMap::CreateEmptyMap()

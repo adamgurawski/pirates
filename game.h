@@ -16,8 +16,9 @@
 class TGame
 {
 public:
-	using TShipPtr = std::unique_ptr<IShipEx>;
+	using TShipPtr = std::unique_ptr<ICivilian>;
 	using TShipInfoSet = std::multiset<TShipInfo, TTimeComparer>;
+	using TShipIt = std::list<TShipPtr>::iterator;
 
 	TGame(options::TOptions& options);
 	~TGame() = default;
@@ -35,13 +36,26 @@ private:
 	void GenerateShips();
 
 	// Change ships position and change its coordinates on map.
-	void Move(TShipPtr& ship);
+	// Returns iterator to next valid element if ship was deleted (otherwise iterator points to
+	// the current element).
+	void Move(TShipIt& it, bool& removed);
 
 	// Move all civilians.
 	void MoveCivilians();
 
-	// Check whether any ship sees the pirates. If so, change its destination.
+	// Check for every ships if it can see the pirates. If so, change its destination (flee).
 	void LookForPirates();
+
+	// Return true if the pirate can be spotted. 
+	bool SeesPirate(const TShipPtr& ship) const;
+
+	// Return true if ship can leave the map in this turn.
+	bool CanLeave(const TShipPtr& ship) const;
+
+	// Remove ship from ship list and from the map.
+	// Returns iterator to next valid element if ship was deleted (otherwise iterator points to
+	// the current element).
+	void Remove(TShipIt& it, bool& removed);
 
 	TCoordinates SetCivilianStartingDestination(TCoordinates position) const;
 

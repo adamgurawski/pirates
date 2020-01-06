@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-// TODO: !! implement TGame::Move (find a way to calculate distance to move a ship in one round).
+// TODO: !! implement TGame::Move (find a way to calculate distance to move the pirate).
 
 int main(int argc, const char** argv)
 {
