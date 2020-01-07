@@ -17,14 +17,34 @@ void TPirate::debug_IntroduceYourself() const
 		"Destination: " << Destination.X << " " << Destination.Y << std::endl;
 }
 
-bool AShip::IsRunningAway() const
+bool ACivilian::WasAttacked() const
+{
+	return Attacked;
+}
+
+void ACivilian::SetAttacked()
+{
+	Attacked = true;
+}
+
+bool ACivilian::IsRunningAway() const
 {
 	return RunningAway;
 }
 
-void AShip::SetRunningAway()
+void ACivilian::SetRunningAway()
 {
 	RunningAway = true;
+}
+
+TCoordinates ACivilian::GetDestination() const
+{
+	return Destination;
+}
+
+void ACivilian::ChangeDestination(TCoordinates coordinates)
+{
+	Destination = coordinates;
 }
 
 float AShip::GetVelocity() const
@@ -42,29 +62,9 @@ TCoordinates AShip::GetPosition() const
 	return Position;
 }
 
-TCoordinates AShip::GetDestination() const
+void AShip::Move(TCoordinates coordinates)
 {
-	return Destination;
-}
-
-void AShip::ChangeDestination(TCoordinates coordinates)
-{
-	Destination = coordinates;
-}
-
-float TPirate::GetVelocity() const
-{
-	return Velocity;
-}
-
-float TPirate::GetRangeOfView() const
-{
-	return Visibility;
-}
-
-TCoordinates TPirate::GetPosition() const
-{
-	return Position;
+	Position = coordinates;
 }
 
 void TPirate::ModifyVelocity(float baseVelocity)

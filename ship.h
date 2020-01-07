@@ -1,9 +1,12 @@
 #ifndef _SHIP_H
 #define _SHIP_H
 
-/* The problem is that I want three separate interfaces (IShip, ICivilian, IPirate), but
-	 TPirate and civilians have many common fields, so they should inherit from common class
-	 (f.e. AShip as it was before). */
+// Disable "... inherits via dominance" warning.
+#pragma warning (disable: 4250)
+
+#include <iostream> // debugging purposes
+#include <memory>
+#include <string>
 
 struct TCoordinates
 {
@@ -11,9 +14,14 @@ struct TCoordinates
 	unsigned int Y = 0;
 };
 
-#include <iostream> // debugging purposes
-#include <memory>
-#include <string>
+/*
+					 IShip
+					/     \
+		AShip       ICivilian
+		 |    \     /
+		 |		 ACivilian
+		TPirate
+*/
 
 class IShip
 {
@@ -30,35 +38,17 @@ protected:
 	IShip() = default;
 };
 
-class ICivilian : public IShip
-{
-public:
-	virtual ~ICivilian() = default;
-
-	virtual bool IsRunningAway() const = 0;
-	virtual void SetRunningAway() = 0;
-	virtual TCoordinates GetDestination() const = 0;
-	virtual void ChangeDestination(TCoordinates coordinates) = 0;
-
-protected:
-	ICivilian() = default;
-};
-
-class AShip : public ICivilian
+// Common base class for all ships (pirate and civilians).
+class AShip : virtual public IShip
 {
 public:
 	virtual ~AShip() = default;
 
-	virtual void debug_IntroduceYourself() const;
-
-	virtual bool IsRunningAway() const override;
-	virtual void SetRunningAway() override;
 	virtual float GetVelocity() const override;
 	virtual float GetRangeOfView() const override;
 	virtual TCoordinates GetPosition() const override;
-	virtual TCoordinates GetDestination() const override;
-
-	virtual void ChangeDestination(TCoordinates coordinates) override;
+	virtual void debug_IntroduceYourself() const;
+	virtual void Move(TCoordinates coordinates) override;
 
 protected:
 	// Needed by TGame's constructor in order to construct empty TPirate.
@@ -66,20 +56,12 @@ protected:
 
 	AShip(const std::string& name, float velocity, float visibility, TCoordinates position,
 		TCoordinates destination) : Name(name), Velocity(velocity), Visibility(visibility),
-		Position(position), Destination(destination), RunningAway(false)
+		Position(position), Destination(destination)
 	{}
-
-	virtual void Move(TCoordinates coordinates) override
-	{
-		Position = coordinates;
-	}
 
 protected:
 	// Name. Separate identificator to be added? Is it neccessary?
 	std::string Name;
-
-	// True if ship has spotted the pirates and changed its destination.
-	bool RunningAway;
 
 	// Speed.
 	float Velocity;
@@ -94,21 +76,35 @@ protected:
 	TCoordinates Destination;
 };
 
+// Interface used by TGame (TGame keeps list of std::unique_ptr<ICivilian>).
+class ICivilian : virtual public IShip
+{
+public:
+	virtual ~ICivilian() = default;
+
+	virtual bool WasAttacked() const = 0;
+	virtual void SetAttacked() = 0;
+	virtual bool IsRunningAway() const = 0;
+	virtual void SetRunningAway() = 0;
+	virtual TCoordinates GetDestination() const = 0;
+	virtual void ChangeDestination(TCoordinates coordinates) = 0;
+
+protected:
+	ICivilian() = default;
+};
+
 // Common base class for all of civilian ships (potential pirate targets).
-class ACivilian : public AShip
+class ACivilian : public AShip, public ICivilian
 {
 public:
 	virtual ~ACivilian() = default;
 
-	bool WasAttacked() const
-	{
-		return Attacked;
-	}
-
-	void SetAttacked()
-	{
-		Attacked = true;
-	}
+	virtual bool WasAttacked() const override;
+	virtual void SetAttacked() override;
+	virtual bool IsRunningAway() const override;
+	virtual void SetRunningAway() override;
+	virtual TCoordinates GetDestination() const override;
+	virtual void ChangeDestination(TCoordinates coordinates) override;
 
 	virtual void debug_IntroduceYourself() const override
 	{
@@ -120,7 +116,8 @@ public:
 protected:
 	ACivilian(const std::string& name, float velocity, float visibility, TCoordinates position,
 		TCoordinates destination, unsigned vulnerability = 100) :
-		AShip(name, velocity, visibility, position, destination), Vulnerability(vulnerability)
+		AShip(name, velocity, visibility, position, destination), ICivilian(), 
+		Vulnerability(vulnerability), RunningAway(false)
 	{}
 
 
@@ -129,9 +126,12 @@ protected:
 	const unsigned int Vulnerability;
 
 	/* Set to true when the ship was unsuccessfully attacked.
-		 In case when it was successfully attacked - it sinks and gets deleted
-		 from the map, so there is no need to set Attacked to true. */
+		 If it was successfully attacked - it sinks and gets deleted
+		 from the map, so there is no need to set Attacked = true in this case. */
 	bool Attacked = false;
+
+	// True if ship has spotted the pirates and is trying to leave the map.
+	bool RunningAway;
 };
 
 /* Vulnerability = 60%. */
@@ -169,12 +169,11 @@ public:
 	virtual ~TPassenger() = default;
 };
 
-class TPirate final : public IShip
+class TPirate final : public AShip
 {
 public:
 	TPirate(float velocity, float visibility, TCoordinates position, TCoordinates destination) : 
-		Name("The Green Oyster"), Velocity(velocity), Visibility(visibility), Position(position), 
-		Destination(destination), Target(nullptr)
+		AShip("The Green Oyster", velocity, visibility, position, destination), Target(nullptr)
 	{}
 
 	// Needed by TGame's constructor.
@@ -182,33 +181,21 @@ public:
 
 	// Do not call "delete" on Target, pirate does not own this pointer.
 	~TPirate() = default;
-	
-	// IShip overrides:
-	virtual float GetVelocity() const override;
-	virtual float GetRangeOfView() const override;
-	virtual TCoordinates GetPosition() const override;
+  
+	// Methods below are meant to be called by TGame, because it is the only entity that holds
+	// a TPirate object:
 
+	// Sets pirate's velocity as base * 1.25.
 	void ModifyVelocity(float baseVelocity);
+
 	void ChangeTarget(const IShip* target);
 	const IShip* GetTarget() const;
-
-	virtual void Move(TCoordinates coordinates) override
-	{
-		Position = coordinates;
-	}
 
 	virtual void debug_IntroduceYourself() const override;
 
 private:
 	// Const pointer to a ship the pirate is following. Can be null (no target).
 	const IShip* Target;
-
-	// Common fields for Pirate and civilians.
-	std::string Name;
-	float Velocity;
-	float Visibility;
-	TCoordinates Position;
-	TCoordinates Destination;
 };
 
 #endif // _SHIP_H
