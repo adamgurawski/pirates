@@ -13,7 +13,7 @@ TGame::TGame(options::TOptions& options)
 	srand(static_cast<unsigned int>(time(NULL)));
 
 	// Create pirate and place it on the map.
-	Pirate = TPirate(1, 5, Map.RollPiratesPosition(), { 0,0 });
+	Pirate = TPirate(1, Map.RollPiratesPosition(), { 0,0 });
 	Map.PlaceOnMap(Pirate.GetPosition(), static_cast<const IShip*>(&Pirate));
 
 	ShipsInfo = options.GetShipInfo();
@@ -59,23 +59,20 @@ void TGame::CreateShip(const TShipInfo& shipInfo)
 	TCoordinates destination = SetCivilianStartingDestination(startingPosition);
 	TShipPtr ship;
 
-	// TODO: how to set visibility?
-	float visibility = 3.0f;
-
 	int generate = rand() % 3 + 1;
 	switch (generate)
 	{
 	case 1:
-		ship = std::make_unique<TPassenger>(shipInfo.Name, shipInfo.Velocity, visibility, 
-			startingPosition, destination);
+		ship = std::make_unique<TPassenger>(shipInfo.Name, shipInfo.Velocity, startingPosition, 
+			destination);
 		break;
 	case 2:
-		ship = std::make_unique<TBulkCarrier>(shipInfo.Name, shipInfo.Velocity, visibility,
-			startingPosition, destination);
+		ship = std::make_unique<TBulkCarrier>(shipInfo.Name, shipInfo.Velocity, startingPosition,
+			destination);
 		break;
 	case 3:
-		ship = std::make_unique<TTanker>(shipInfo.Name, shipInfo.Velocity, visibility,
-			startingPosition, destination);
+		ship = std::make_unique<TTanker>(shipInfo.Name, shipInfo.Velocity, startingPosition, 
+			destination);
 		break;
 	default:
 		assert(false && "How did we get here?");
@@ -232,6 +229,7 @@ void TGame::Remove(TShipIt& it, bool& removed)
 	removed = true;
 }
 
+// TODO: make it less ugly.
 TCoordinates TGame::SetCivilianStartingDestination(TCoordinates position) const
 {
 	TCoordinates destination = position;

@@ -134,13 +134,11 @@ protected:
 	bool RunningAway;
 };
 
-/* Vulnerability = 60%. */
 class TBulkCarrier : public ACivilian
 {
 public:
-	TBulkCarrier(const std::string& name, float velocity, float visibility, TCoordinates position,
-		TCoordinates destination) : ACivilian(name, velocity, visibility, position, destination, 60)
-	{}
+	TBulkCarrier(const std::string& name, float velocity, TCoordinates position,
+		TCoordinates destination);
 
 	virtual ~TBulkCarrier() = default;
 };
@@ -150,9 +148,7 @@ public:
 class TTanker : public ACivilian
 {
 public:
-	TTanker(const std::string& name, float velocity, float visibility, TCoordinates position,
-		TCoordinates destination) : ACivilian(name, velocity, visibility, position, destination, 80)
-	{}
+	TTanker(const std::string& name, float velocity, TCoordinates position, TCoordinates destination);
 
 	virtual ~TTanker() = default;
 };
@@ -162,9 +158,8 @@ public:
 class TPassenger : public ACivilian
 {
 public:
-	TPassenger(const std::string& name, float velocity, float visibility, TCoordinates position,
-		TCoordinates destination) : ACivilian(name, velocity, visibility, position, destination, 30)
-	{}
+	TPassenger(const std::string& name, float velocity, TCoordinates position,
+		TCoordinates destination);
 
 	virtual ~TPassenger() = default;
 };
@@ -172,9 +167,7 @@ public:
 class TPirate final : public AShip
 {
 public:
-	TPirate(float velocity, float visibility, TCoordinates position, TCoordinates destination) : 
-		AShip("The Green Oyster", velocity, visibility, position, destination), Target(nullptr)
-	{}
+	TPirate(float velocity, TCoordinates position, TCoordinates destination);
 
 	// Needed by TGame's constructor.
 	TPirate() = default;
@@ -186,7 +179,7 @@ public:
 	// a TPirate object:
 
 	// Sets pirate's velocity as base * 1.25.
-	void ModifyVelocity(float baseVelocity);
+	void ModifyVelocity(float fastestCivilianVelocity);
 
 	void ChangeTarget(const IShip* target);
 	const IShip* GetTarget() const;
