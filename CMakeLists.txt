@@ -1,5 +1,4 @@
 cmake_minimum_required (VERSION 3.15)
 project (Pirates)
 add_executable(Pirates main.cpp)
-target_sources(Pirates PUBLIC game.cpp map.cpp options.cpp ship.cpp)
-# set_target_properties(Pirates PROPERTIES VS_DEBUGGER_COMMAND_ARGUMENTS "-s SLV 10 20 -t 600 -m 30 30")
+target_sources(Pirates PUBLIC game.cpp map.cpp options.cpp pirate.cpp ship.cpp)

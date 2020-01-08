@@ -32,7 +32,6 @@ public:
 	virtual float GetRangeOfView() const = 0;
 	virtual TCoordinates GetPosition() const = 0;
 	virtual void debug_IntroduceYourself() const = 0;
-	virtual void Move(TCoordinates coordinates) = 0;
 
 protected:
 	IShip() = default;
@@ -48,7 +47,6 @@ public:
 	virtual float GetRangeOfView() const override;
 	virtual TCoordinates GetPosition() const override;
 	virtual void debug_IntroduceYourself() const;
-	virtual void Move(TCoordinates coordinates) override;
 
 protected:
 	// Needed by TGame's constructor in order to construct empty TPirate.
@@ -88,6 +86,7 @@ public:
 	virtual void SetRunningAway() = 0;
 	virtual TCoordinates GetDestination() const = 0;
 	virtual void ChangeDestination(TCoordinates coordinates) = 0;
+	virtual void Move(TCoordinates coordinates) = 0;
 
 protected:
 	ICivilian() = default;
@@ -105,6 +104,7 @@ public:
 	virtual void SetRunningAway() override;
 	virtual TCoordinates GetDestination() const override;
 	virtual void ChangeDestination(TCoordinates coordinates) override;
+	virtual void Move(TCoordinates coordinates) override;
 
 	virtual void debug_IntroduceYourself() const override
 	{
@@ -134,6 +134,7 @@ protected:
 	bool RunningAway;
 };
 
+/* Vulnerability = 60%. */
 class TBulkCarrier : public ACivilian
 {
 public:
@@ -162,33 +163,6 @@ public:
 		TCoordinates destination);
 
 	virtual ~TPassenger() = default;
-};
-
-class TPirate final : public AShip
-{
-public:
-	TPirate(float velocity, TCoordinates position, TCoordinates destination);
-
-	// Needed by TGame's constructor.
-	TPirate() = default;
-
-	// Do not call "delete" on Target, pirate does not own this pointer.
-	~TPirate() = default;
-  
-	// Methods below are meant to be called by TGame, because it is the only entity that holds
-	// a TPirate object:
-
-	// Sets pirate's velocity as base * 1.25.
-	void ModifyVelocity(float fastestCivilianVelocity);
-
-	void ChangeTarget(const IShip* target);
-	const IShip* GetTarget() const;
-
-	virtual void debug_IntroduceYourself() const override;
-
-private:
-	// Const pointer to a ship the pirate is following. Can be null (no target).
-	const IShip* Target;
 };
 
 #endif // _SHIP_H

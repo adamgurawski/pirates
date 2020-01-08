@@ -5,6 +5,7 @@
 #include <iostream>
 
 // TODO: !! implement TGame::Move (find a way to calculate distance to move the pirate).
+// TODO: !! TSimpleBrain and TPirate's move mechanism.
 
 int main(int argc, const char** argv)
 {

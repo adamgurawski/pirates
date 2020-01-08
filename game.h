@@ -5,6 +5,7 @@
 
 #include "map.h"
 #include "options.h"
+#include "pirate.h"
 #include "ship.h"
 
 #include <memory>
