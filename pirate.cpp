@@ -13,6 +13,25 @@ TPirate::TPirate(TCoordinates position, unsigned int mapWidth, unsigned int mapH
 	Brain = std::make_unique<TSimpleBrain>(mapWidth - 1, mapHeight - 1);
 }
 
+TPirate::TPirate(TPirate&& rhs) : Target(rhs.Target),
+	AShip(rhs.Name, rhs.Velocity, rhs.Visibility, rhs.Position, rhs.Destination)
+{
+	Brain = std::move(rhs.Brain);
+}
+
+TPirate& TPirate::operator=(TPirate&& rhs)
+{
+	Brain = std::move(rhs.Brain);
+	Destination = rhs.Destination;
+	Name = rhs.Name;
+	Position = rhs.Position;
+	Velocity = rhs.Velocity;
+	Visibility = rhs.Visibility;
+	Target = rhs.Target;
+
+	return *this;
+}
+
 void TPirate::Move()
 {
 	if (HeadToDestination())
@@ -45,7 +64,7 @@ void TPirate::UpdateDestination()
 
 bool TPirate::HeadToDestination()
 { // TODO: check if velocity allows Position = Destination.
-
+	return true;
 }
 
 TSimpleBrain::TSimpleBrain(int maxX, int maxY) : MaxX(maxX), MaxY(maxY), LongTermDestination({ 0,0 })

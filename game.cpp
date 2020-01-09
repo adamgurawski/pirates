@@ -13,7 +13,7 @@ TGame::TGame(options::TOptions& options)
 	srand(static_cast<unsigned int>(time(NULL)));
 
 	// Create pirate and place it on the map.
-	Pirate = TPirate(Map.RollPiratesPosition(), Map.GetWidth(), Map.GetHeight());
+	Pirate = std::move(TPirate(Map.RollPiratesPosition(), Map.GetWidth(), Map.GetHeight()));
 	Map.PlaceOnMap(Pirate.GetPosition(), static_cast<const IShip*>(&Pirate));
 
 	ShipsInfo = options.GetShipInfo();

@@ -34,6 +34,14 @@ class TPirate final : public AShip
 public:
 	TPirate(TCoordinates position, unsigned int mapWidth, unsigned int mapHeight);
 
+	// Can't copy unique_ptr.
+	TPirate(const TPirate& rhs) = delete;
+	TPirate operator=(const TPirate& rhs) = delete;
+
+	// Move assignment operator.
+	TPirate(TPirate&& rhs);
+	TPirate& operator=(TPirate&& rhs);
+
 	// Needed by TGame's constructor.
 	TPirate() = default;
 
