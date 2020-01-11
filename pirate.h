@@ -29,7 +29,7 @@ private:
 	TCoordinates LongTermDestination;
 };
 
-class TPirate final : public AShip
+class TPirate final : public AShip<IShip>
 {
 public:
 	TPirate(TCoordinates position, unsigned int mapWidth, unsigned int mapHeight);
@@ -38,8 +38,10 @@ public:
 	TPirate(const TPirate& rhs) = delete;
 	TPirate operator=(const TPirate& rhs) = delete;
 
-	// Move assignment operator.
+	// Move constructor.
 	TPirate(TPirate&& rhs);
+
+	// Move assignment operator.
 	TPirate& operator=(TPirate&& rhs);
 
 	// Needed by TGame's constructor.

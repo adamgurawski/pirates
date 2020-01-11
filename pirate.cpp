@@ -7,7 +7,8 @@ namespace
 }
 
 TPirate::TPirate(TCoordinates position, unsigned int mapWidth, unsigned int mapHeight) :
-	AShip("The Green Oyster", PIRATES_INITIAL_VELOCITY, PIRATES_VISIBILITY, position, { 0,0 }),
+	AShip("The Green Oyster", PIRATES_INITIAL_VELOCITY, PIRATES_VISIBILITY, position,
+	{ 0,0 }),
 	Target(nullptr)
 {
 	Brain = std::make_unique<TSimpleBrain>(mapWidth - 1, mapHeight - 1);
@@ -31,6 +32,7 @@ TPirate& TPirate::operator=(TPirate&& rhs)
 
 	return *this;
 }
+
 
 void TPirate::Move()
 {
@@ -67,7 +69,8 @@ bool TPirate::HeadToDestination()
 	return true;
 }
 
-TSimpleBrain::TSimpleBrain(int maxX, int maxY) : MaxX(maxX), MaxY(maxY), LongTermDestination({ 0,0 })
+TSimpleBrain::TSimpleBrain(int maxX, int maxY) : MaxX(maxX), MaxY(maxY),
+	LongTermDestination({ 0,0 })
 {
 }
 

@@ -55,10 +55,10 @@ public:
 					std::cout << " . ";
 				else
 				{
-					// Debug.
-					if (dynamic_cast<const TPirate*>(Map.at({ x, static_cast<unsigned int>(y) })))
-						std::cout << " X ";
-					else
+					// TODO: find another way to check whether its pirate for debugging purposes.
+					//if (dynamic_cast<const TPirate*>(Map.at({ x, static_cast<unsigned int>(y) })))
+						//std::cout << " X ";
+					//else
 						std::cout << " O ";
 				}
 			}
