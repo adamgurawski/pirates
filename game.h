@@ -33,24 +33,28 @@ private:
 	void CreateShip(const TShipInfo& shipInfo);
 
 	// Create ships which time of generation equals CurrentTime and erase their info
-	// from ship info set.
+	// from ship info set. Uses CreateShip for every ship.
 	void GenerateShips();
 
+	// Add velocity to destination.
+	TCoordinates SetTemporaryDestination(int velocity, 
+		TCoordinates position, TCoordinates destination) const;
+
 	// Change ships position and change its coordinates on map.
-	// Returns iterator to next valid element if ship was deleted (otherwise iterator points to
-	// the current element).
+	// Returns iterator (as parameter) to next valid element if ship was deleted 
+	// (otherwise iterator points to the current element).
 	void Move(TShipIt& it, bool& removed);
 
 	// Move all civilians.
 	void MoveCivilians();
 
-	// Check for every ships if it can see the pirates. If so, change its destination (flee).
+	// Check for every ship if it can see the pirates. If so, change its destination (flee).
 	void LookForPirates();
 
-	// Return true if the pirate can be spotted. 
+	// Return true if the pirate is in ship's range of view. 
 	bool SeesPirate(const TShipPtr& ship) const;
 
-	// Return true if ship can leave the map in this turn.
+	// Return true if ship's velocity is sufficient to leave the map in this turn.
 	bool CanLeave(const TShipPtr& ship) const;
 
 	// Remove ship from ship list and from the map.

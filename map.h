@@ -55,10 +55,9 @@ public:
 					std::cout << " . ";
 				else
 				{
-					// TODO: find another way to check whether its pirate for debugging purposes.
-					//if (dynamic_cast<const TPirate*>(Map.at({ x, static_cast<unsigned int>(y) })))
-						//std::cout << " X ";
-					//else
+					if (Map.at({ x, static_cast<unsigned int>(y) })->debug_IsPirate())
+						std::cout << " X ";
+					else
 						std::cout << " O ";
 				}
 			}
@@ -85,12 +84,19 @@ public:
 	// Nullify coordinates (ship destroyed / changed position).
 	void Remove(const TCoordinates& coordinates);
 
-private:
-	bool IsEmpty(TCoordinates coordinates) const
-	{
-		return (Map.at(coordinates) == nullptr);
+	// Tell if there is no ship on these coordinates.
+	bool IsEmpty(TCoordinates coordinates) const;
+
+	bool HasEmptyCoordinates() const
+	{ // Not so optimal solution, but I'm running out of time.
+		for (auto& element : Map)
+			if (element.second == nullptr)
+				return true;
+
+		return false;
 	}
 
+private:
 	void CreateEmptyMap();
 
 	std::map<TCoordinates, const IShip*, TCoordinatesComparer> Map;

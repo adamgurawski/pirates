@@ -31,7 +31,6 @@ bool TGame::Run()
 	for (; CurrentTime < SimDuration; ++CurrentTime)
 	{
 		RunTurn();
-		Map.debug_PrintMap();
 	}
 
 	return true;
@@ -52,6 +51,7 @@ bool TGame::RunTurn()
 	// CanAttack?
 	// Attack
 
+	Map.debug_PrintMap();
 	return true;
 }
 
@@ -104,6 +104,29 @@ void TGame::GenerateShips()
 		it = ShipsInfo.erase(it);
 	}
 }
+TCoordinates TGame::SetTemporaryDestination(int velocity, 
+	TCoordinates position, TCoordinates destination) const
+{
+	TCoordinates result;
+
+	if (position.X == destination.X)
+	{ // Moving on Y axis.
+		if (position.Y > destination.Y)
+			result = { position.X, position.Y - velocity };
+		else
+			result = { position.X, position.Y + velocity };
+	}
+	else
+	{ // Moving on X axis.
+		if (position.X > destination.X)
+			result = { position.X - velocity, position.Y };
+		else
+			result = { position.X + velocity, position.Y };
+	}
+
+	return result;
+}
+
 
 void TGame::Move(TShipIt& it, bool& removed)
 {
@@ -121,22 +144,25 @@ void TGame::Move(TShipIt& it, bool& removed)
 		Remove(it, removed);
 	}
 	else
-	{
-		TCoordinates target;
-
-		if (position.X == destination.X)
-		{ // Moving on Y axis.
-			if (position.Y > destination.Y)
-				target = { position.X, position.Y - velocity };
-			else
-				target = { position.X, position.Y + velocity };
+	{	
+		if (!Map.HasEmptyCoordinates())
+		{ // Do not move. TODO: throw exception?
+			return;
 		}
-		else
-		{ // Moving on X axis.
-			if (position.X > destination.X)
-				target = { position.X - velocity, position.Y };
-			else
-				target = { position.X + velocity, position.Y };
+
+		TCoordinates target = SetTemporaryDestination(velocity, position, 
+			destination);
+
+		while (!Map.IsEmpty(target))
+		{ // Try moving one unit less.
+			velocity -= 1;
+
+			if (velocity < 1)
+			{ // Do not move. Should I throw exception?
+				return;
+			}
+
+			target = SetTemporaryDestination(velocity, position, destination);
 		}
 
 		Map.Move(ship.get(), target);
@@ -178,10 +204,7 @@ bool TGame::SeesPirate(const TShipPtr& ship) const
 	TCoordinates shipPosition = ship->GetPosition();
 	float visibility = ship->GetRangeOfView();
 
-	if (Map.IsInRange(shipPosition, visibility, piratePosition))
-		return true;
-	else
-		return false;
+	return (Map.IsInRange(shipPosition, visibility, piratePosition));
 }
 
 bool TGame::CanLeave(const TShipPtr& ship) const

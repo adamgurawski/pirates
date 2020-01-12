@@ -35,6 +35,7 @@ public:
 	virtual float GetRangeOfView() const = 0;
 	virtual TCoordinates GetPosition() const = 0;
 	virtual void debug_IntroduceYourself() const = 0;
+	virtual bool debug_IsPirate() const = 0;
 
 protected:
 	IShip() = default;
@@ -134,6 +135,11 @@ public:
 		AShip::debug_IntroduceYourself();
 		std::cout << "Vulnerability: " << Vulnerability << std::endl <<
 			"Attacked: " << std::boolalpha << Attacked << std::endl;
+	}
+
+	virtual bool debug_IsPirate() const override
+	{
+		return false;
 	}
 
 protected:

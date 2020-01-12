@@ -1,11 +1,12 @@
 #include "ship.h"
 
 // TODO: set some rules and hardcode it.
+// TODO: (debug) temporary doubled vision
 namespace
 {
-#define TANKERS_VISIBILITY 4.0f
-#define PASSENGERS_VISIBILITY 5.0f
-#define BULKCARRIERS_VISIBILITY 3.0f
+#define TANKERS_VISIBILITY 8.0f
+#define PASSENGERS_VISIBILITY 10.0f
+#define BULKCARRIERS_VISIBILITY 6.0f
 
 #define TANKERS_VULNERABILITY 80
 #define PASSENGERS_VULNERABILITY 30	

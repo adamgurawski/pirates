@@ -65,6 +65,11 @@ public:
 
 	virtual void debug_IntroduceYourself() const override;
 
+	virtual bool debug_IsPirate() const override
+	{
+		return true;
+	}
+
 private:
 	// To be used on every move.
 	void UpdateDestination();

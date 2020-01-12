@@ -82,8 +82,6 @@ bool TMap::PlaceOnMap(TCoordinates coordinates, const IShip* ship)
 
 TCoordinates TMap::CalculateClosestExit(TCoordinates coordinates) const
 { // TODO: make it prettier.
-	assert(Height > 0 && Width > 0);
-
 	int maxX = Width - 1;
 	int maxY = Height - 1;
 
@@ -148,18 +146,20 @@ TCoordinates TMap::CalculateClosestExit(TCoordinates coordinates) const
 
 bool TMap::IsInRange(const TCoordinates& center, float visibility, 
 	const TCoordinates& target) const
-{ // TODO: verify correctness.
-	float distance = static_cast<float>(std::abs(std::sqrt(std::pow(center.X - target.X, 2) + 
-		std::pow(center.Y - target.Y, 2))));
+{ // TODO: !! fix distance calculation.
+	int x = std::abs(static_cast<int>(target.X - center.X));
+	int y = std::abs(static_cast<int>(target.Y - center.Y));
 
-	if (visibility > distance)
-		return true;
-	else
-		return false;
+	float powX = std::pow(x, 2);
+	float powY = std::pow(y, 2);
+	float powDistance = powX + powY;
+	float distance = std::sqrt(powDistance);
+
+	return visibility > distance;
 }
 
 void TMap::Move(const IShip* ship, const TCoordinates& target)
-{ // TODO: throw exception when can't move there?
+{ 
 	Remove(ship->GetPosition());
 	auto it = Map.find(target);
 	it->second = ship;
@@ -170,6 +170,11 @@ void TMap::Remove(const TCoordinates& coordinates)
 {
 	auto it = Map.find(coordinates);
 	it->second = nullptr;
+}
+
+bool TMap::IsEmpty(TCoordinates coordinates) const
+{
+	return (Map.at(coordinates) == nullptr);
 }
 
 void TMap::CreateEmptyMap()

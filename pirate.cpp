@@ -80,12 +80,13 @@ TCoordinates TSimpleBrain::SetNewDestination(TCoordinates position, const IShip*
 	if (target)
 	{ // Chase the target.
 		LongTermDestination = target->GetPosition();
-		return LongTermDestination;
 	}
 	else
 	{ // Zig-zag.
 		// TODO: !! Firstly align with target's X or Y, then follow along the second axis.
 	}
+
+	return LongTermDestination;
 }
 
 void TPirate::debug_IntroduceYourself() const
