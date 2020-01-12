@@ -87,14 +87,7 @@ public:
 	// Tell if there is no ship on these coordinates.
 	bool IsEmpty(TCoordinates coordinates) const;
 
-	bool HasEmptyCoordinates() const
-	{ // Not so optimal solution, but I'm running out of time.
-		for (auto& element : Map)
-			if (element.second == nullptr)
-				return true;
-
-		return false;
-	}
+	bool HasEmptyCoordinates() const;
 
 private:
 	void CreateEmptyMap();

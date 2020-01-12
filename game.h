@@ -43,7 +43,10 @@ private:
 	// Change ships position and change its coordinates on map.
 	// Returns iterator (as parameter) to next valid element if ship was deleted 
 	// (otherwise iterator points to the current element).
+	// Note that it is intended only for civilians, the pirate has its own method.
 	void Move(TShipIt& it, bool& removed);
+
+	void MovePirate();
 
 	// Move all civilians.
 	void MoveCivilians();

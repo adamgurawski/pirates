@@ -146,7 +146,7 @@ TCoordinates TMap::CalculateClosestExit(TCoordinates coordinates) const
 
 bool TMap::IsInRange(const TCoordinates& center, float visibility, 
 	const TCoordinates& target) const
-{ // TODO: !! fix distance calculation.
+{
 	int x = std::abs(static_cast<int>(target.X - center.X));
 	int y = std::abs(static_cast<int>(target.Y - center.Y));
 
@@ -155,7 +155,7 @@ bool TMap::IsInRange(const TCoordinates& center, float visibility,
 	float powDistance = powX + powY;
 	float distance = std::sqrt(powDistance);
 
-	return visibility > distance;
+	return !(distance > visibility);
 }
 
 void TMap::Move(const IShip* ship, const TCoordinates& target)
@@ -175,6 +175,15 @@ void TMap::Remove(const TCoordinates& coordinates)
 bool TMap::IsEmpty(TCoordinates coordinates) const
 {
 	return (Map.at(coordinates) == nullptr);
+}
+
+bool TMap::HasEmptyCoordinates() const
+{ // Not so optimal solution, but I'm running out of time.
+	for (auto& element : Map)
+		if (element.second == nullptr)
+			return true;
+
+	return false;
 }
 
 void TMap::CreateEmptyMap()

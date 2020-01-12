@@ -11,11 +11,13 @@ TPirate::TPirate(TCoordinates position, unsigned int mapWidth, unsigned int mapH
 	{ 0,0 }),
 	Target(nullptr)
 {
-	Brain = std::make_unique<TSimpleBrain>(mapWidth - 1, mapHeight - 1);
+	Brain = std::make_unique<TSimpleBrain>(mapWidth - 1, mapHeight - 1, Position, Destination,
+		Velocity, Target);
 }
 
-TPirate::TPirate(TPirate&& rhs) : Target(rhs.Target),
-	AShip(rhs.Name, rhs.Velocity, rhs.Visibility, rhs.Position, rhs.Destination)
+TPirate::TPirate(TPirate&& rhs) :  
+	AShip(rhs.Name, rhs.Velocity, rhs.Visibility, rhs.Position, rhs.Destination),
+	Target(std::move(rhs.Target))
 {
 	Brain = std::move(rhs.Brain);
 }
@@ -23,25 +25,19 @@ TPirate::TPirate(TPirate&& rhs) : Target(rhs.Target),
 TPirate& TPirate::operator=(TPirate&& rhs)
 {
 	Brain = std::move(rhs.Brain);
-	Destination = rhs.Destination;
-	Name = rhs.Name;
-	Position = rhs.Position;
-	Velocity = rhs.Velocity;
-	Visibility = rhs.Visibility;
-	Target = rhs.Target;
+	Destination = std::move(rhs.Destination);
+	Name = std::move(rhs.Name);
+	Position = std::move(rhs.Position);
+	Velocity = std::move(rhs.Velocity);
+	Visibility = std::move(rhs.Visibility);
+	Target = std::move(rhs.Target);
 
 	return *this;
 }
 
-
-void TPirate::Move()
+TCoordinates TPirate::GetDesiredDestination(bool& needsCorrection) const
 {
-	if (HeadToDestination())
-	{ // Is at destination.
-		UpdateDestination();
-	}
-	
-
+	return Brain->GetDesiredDestination(needsCorrection);
 }
 
 void TPirate::ModifyVelocity(float fastestCivilianVelocity)
@@ -56,37 +52,75 @@ void TPirate::ChangeTarget(const IShip* target)
 
 const IShip* TPirate::GetTarget() const
 {
-	return Target;
+	return *Target;
 }
 
-void TPirate::UpdateDestination()
+void TPirate::ChangeDestination(const TCoordinates& destination)
 {
-	Destination = Brain->SetNewDestination(Position, Target, Velocity);
+	Destination = destination;
 }
 
-bool TPirate::HeadToDestination()
-{ // TODO: check if velocity allows Position = Destination.
-	return true;
-}
-
-TSimpleBrain::TSimpleBrain(int maxX, int maxY) : MaxX(maxX), MaxY(maxY),
-	LongTermDestination({ 0,0 })
+TSimpleBrain::TSimpleBrain(int maxX, int maxY, TCoordinates& position,
+	TCoordinates& destination, float& velocity, TTargetWrapper& target) : MaxX(maxX),
+	MaxY(maxY),	LongTermDestination({ 0,0 }), Position(position), 
+	Destination(destination), Velocity(velocity), Target(target)
 {
 }
 
-TCoordinates TSimpleBrain::SetNewDestination(TCoordinates position, const IShip* target,
-	float velocity)
+/* TODO: !! Describe what should be done.
+	 1. If doesn't need correction, return genuine desired destination.
+	 2. If needs correction, return genuine desired destination - 1 tile.
+	 3. Repeat 2, when Destination = Position return Position?
+*/
+TCoordinates TSimpleBrain::GetDesiredDestination(bool& needsCorrection)
 {
-	if (target)
+	TCoordinates desiredDestination;
+
+	if (!needsCorrection)
+		desiredDestination = HandleDesiredDestination();
+	else
+	{
+		int modifier = 1;
+		HandleDesiredDestination(modifier);
+	}
+
+
+	return desiredDestination;
+}
+
+TCoordinates TSimpleBrain::HandleDesiredDestination(int modifier)
+{
+	if (Target.IsEmpty())
 	{ // Chase the target.
-		LongTermDestination = target->GetPosition();
+		// legacy?
+		// LongTermDestination = Target->GetPosition();
+		if (CanReachDesiredDestination(modifier))
+			return Destination;
 	}
 	else
 	{ // Zig-zag.
-		// TODO: !! Firstly align with target's X or Y, then follow along the second axis.
+		// TODO: !! Firstly align with target's X or Y, then follow along 
+		// the second axis.
 	}
 
-	return LongTermDestination;
+	// Temporary until implemented.
+	return Position;
+}
+
+bool TSimpleBrain::CanReachDesiredDestination(int modifier) const
+{
+	float velocity = Velocity - modifier;
+	TCoordinates target = Target->GetPosition();
+
+	int x = std::abs(static_cast<int>(target.X - Position.X));
+	int y = std::abs(static_cast<int>(target.Y - Position.Y));
+
+	float powX = std::pow(x, 2);
+	float powY = std::pow(y, 2);
+	float powDistance = powX + powY;
+	float distance = std::sqrt(powDistance);
+
+	return !(distance > velocity);
 }
 
 void TPirate::debug_IntroduceYourself() const

@@ -45,9 +45,10 @@ bool TGame::Run()
 // TODO: implement RunTurn.
 bool TGame::RunTurn()
 {
+	// Change ships' destination if they are in danger (get to the closest border).
 	LookForPirates();
 	MoveCivilians();
-	Pirate.Move();
+	MovePirate();
 	// CanAttack?
 	// Attack
 
@@ -168,6 +169,21 @@ void TGame::Move(TShipIt& it, bool& removed)
 		Map.Move(ship.get(), target);
 		ship->Move(target);
 	}
+}
+
+/* 1. Check if it's possible to go to desired destination (empty coordinates).
+*/
+void TGame::MovePirate()
+{
+	bool needsCorrection = false;
+	TCoordinates destination;
+
+	do
+	{
+		destination = Pirate.GetDesiredDestination(needsCorrection);
+	} while (needsCorrection);
+	
+
 }
 
 void TGame::MoveCivilians()
