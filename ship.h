@@ -34,6 +34,7 @@ public:
 	virtual float GetVelocity() const = 0;
 	virtual float GetRangeOfView() const = 0;
 	virtual TCoordinates GetPosition() const = 0;
+	virtual void Move(const TCoordinates& coordinates) = 0;
 	virtual void debug_IntroduceYourself() const = 0;
 	virtual bool debug_IsPirate() const = 0;
 
@@ -53,7 +54,6 @@ public:
 	virtual void SetRunningAway() = 0;
 	virtual TCoordinates GetDestination() const = 0;
 	virtual void ChangeDestination(TCoordinates coordinates) = 0;
-	virtual void Move(TCoordinates coordinates) = 0;
 
 protected:
 	ICivilian() = default;
@@ -79,6 +79,11 @@ public:
 	virtual TCoordinates GetPosition() const override
 	{
 		return Position;
+	}
+
+	virtual void Move(const TCoordinates& coordinates) override
+	{
+		Position = coordinates;
 	}
 
 	virtual void debug_IntroduceYourself() const override
@@ -128,7 +133,6 @@ public:
 	virtual void SetRunningAway() override;
 	virtual TCoordinates GetDestination() const override;
 	virtual void ChangeDestination(TCoordinates coordinates) override;
-	virtual void Move(TCoordinates coordinates) override;
 
 	virtual void debug_IntroduceYourself() const override
 	{
@@ -144,7 +148,7 @@ public:
 
 protected:
 	ACivilian(const std::string& name, float velocity, float visibility, TCoordinates position,
-		TCoordinates destination, unsigned vulnerability = 100) :
+		TCoordinates destination, float vulnerability = 1.0f) :
 		AShip(name, velocity, visibility, position, destination), Vulnerability(vulnerability),
 		RunningAway(false), Attacked(false)
 	{}
@@ -152,7 +156,7 @@ protected:
 
 protected:
 	// Chance to be attacked (percents?).
-	const unsigned int Vulnerability;
+	const float Vulnerability;
 
 	/* Set to true when the ship was unsuccessfully attacked.
 		 If it was successfully attacked - it sinks and gets deleted

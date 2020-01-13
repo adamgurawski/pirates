@@ -129,7 +129,7 @@ TCoordinates TGame::SetTemporaryDestination(int velocity,
 }
 
 
-void TGame::Move(TShipIt& it, bool& removed)
+void TGame::MoveCivilian(TShipIt& it, bool& removed)
 {
 	TShipPtr& ship = *it;
 	TCoordinates destination = ship->GetDestination();
@@ -181,9 +181,11 @@ void TGame::MovePirate()
 	do
 	{
 		destination = Pirate.GetDesiredDestination(needsCorrection);
+		needsCorrection = Map.IsEmpty(destination) ? false : true;
 	} while (needsCorrection);
 	
-
+	Map.Move(&Pirate, destination);
+	Pirate.Move(destination);
 }
 
 void TGame::MoveCivilians()
@@ -193,7 +195,7 @@ void TGame::MoveCivilians()
 	while (it != Ships.end())
 	{
 		bool removed = false;
-		Move(it, removed);
+		MoveCivilian(it, removed);
 		
 		if (!removed)
 			++it;

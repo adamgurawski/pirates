@@ -4,15 +4,10 @@
 
 #include <iostream>
 
-// TODO: !! implement TPirate::Move (find a way to calculate distance to move the pirate).
 // TODO: !! TSimpleBrain and TPirate's move mechanism.
 /* TODO: !! improve civilians' fleeing when the pirate was spotted (seems like it's not
 			   working correctly if the closest border position == ship.position)
 	 TODO: !! how to update pirate's Destination?
-	 TODO: !! fix heavy issue with TSimpleBrain::Target. It can't be a reference to pointer,
-				 because original (TPirate's) Target can be null.
-				 Potential fixes:
-				 - Target wrapper?
 */
 int main(int argc, const char** argv)
 {

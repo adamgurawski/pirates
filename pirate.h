@@ -62,10 +62,10 @@ private:
 	int MaxY;
 	
 	// References to TPirate's members.
-	float& Velocity;
-	TCoordinates& Position;
-	TCoordinates& Destination;
-	TTargetWrapper& Target;
+	const float& Velocity;
+	const TCoordinates& Position;
+	const TCoordinates& Destination;
+	const TTargetWrapper& Target;
 	
 	// TODO: ! is it legacy?
 	TCoordinates LongTermDestination;

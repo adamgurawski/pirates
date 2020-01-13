@@ -1,6 +1,5 @@
 #include "ship.h"
 
-// TODO: set some rules and hardcode it.
 // TODO: (debug) temporary doubled vision
 namespace
 {
@@ -8,9 +7,9 @@ namespace
 #define PASSENGERS_VISIBILITY 10.0f
 #define BULKCARRIERS_VISIBILITY 6.0f
 
-#define TANKERS_VULNERABILITY 80
-#define PASSENGERS_VULNERABILITY 30	
-#define BULKCARRIERS_VULNERABILITY 60
+#define TANKERS_VULNERABILITY 0.8f
+#define PASSENGERS_VULNERABILITY 0.3f
+#define BULKCARRIERS_VULNERABILITY 0.6f
 }
 
 bool ACivilian::WasAttacked() const
@@ -41,11 +40,6 @@ TCoordinates ACivilian::GetDestination() const
 void ACivilian::ChangeDestination(TCoordinates coordinates)
 {
 	Destination = coordinates;
-}
-
-void ACivilian::Move(TCoordinates coordinates)
-{
-	Position = coordinates;
 }
 
 TBulkCarrier::TBulkCarrier(const std::string& name, float velocity, TCoordinates position,

@@ -44,7 +44,7 @@ private:
 	// Returns iterator (as parameter) to next valid element if ship was deleted 
 	// (otherwise iterator points to the current element).
 	// Note that it is intended only for civilians, the pirate has its own method.
-	void Move(TShipIt& it, bool& removed);
+	void MoveCivilian(TShipIt& it, bool& removed);
 
 	void MovePirate();
 

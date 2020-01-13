@@ -162,10 +162,11 @@ void TMap::Move(const IShip* ship, const TCoordinates& target)
 { 
 	Remove(ship->GetPosition());
 	auto it = Map.find(target);
+	assert(!it->second && "Must be nullptr.");
 	it->second = ship;
 }
 
-// Nullify ship at specified coordinates (ship destroyed / left the map).
+// Nullify ship pointer at specified coordinates.
 void TMap::Remove(const TCoordinates& coordinates)
 {
 	auto it = Map.find(coordinates);

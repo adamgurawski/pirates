@@ -87,7 +87,7 @@ TSimpleBrain::TSimpleBrain(int maxX, int maxY, TCoordinates& position,
 {
 }
 
-/* TODO: !! Describe what should be done.
+/*
 	 1. If doesn't need correction, return genuine desired destination.
 	 2. If needs correction, return genuine desired destination - 1 tile.
 	 3. Repeat 2, when Destination = Position return Position?
@@ -103,7 +103,6 @@ TCoordinates TSimpleBrain::GetDesiredDestination(bool& needsCorrection)
 		int modifier = 1;
 		HandleDesiredDestination(modifier);
 	}
-
 
 	return desiredDestination;
 }
