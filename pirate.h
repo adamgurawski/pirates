@@ -3,78 +3,31 @@
 
 #include "ship.h"
 
+/* I had to create this wrapper because TPirate::Target can be nullptr and TSimpleBrain
+	 holds a reference to Target. */
 class TTargetWrapper
 {
 public:
 	// Do not delete Target, wrapper does not own this resource.
 	~TTargetWrapper() = default;
 
-	TTargetWrapper()
-	{
-		Target = nullptr;
-	}
+	// Constructors.
+	TTargetWrapper() { Target = nullptr; }
+	TTargetWrapper(const IShip* target) { Target = target; }
+	TTargetWrapper(const TTargetWrapper& rhs) : Target(rhs.Target) {}
+	TTargetWrapper(TTargetWrapper&& rhs) : Target(std::move(rhs.Target)) {}
 
-	TTargetWrapper(const IShip* target)
-	{
-		Target = target;
-	}
+	// Operators.
+	const IShip* operator*() { return Target;	}
+	const IShip* const operator*() const { return Target; }
+	const IShip* operator->() { return Target; }
+	const IShip* const operator->() const { return Target; }
 
-	// Copy constructor.
-	TTargetWrapper(const TTargetWrapper& rhs) : Target(rhs.Target)
-	{}
+	TTargetWrapper& operator=(const IShip* ship);
+	TTargetWrapper& operator=(const TTargetWrapper& rhs);
+	TTargetWrapper& operator=(TTargetWrapper&& rhs);
 
-	// Move constructor.
-	TTargetWrapper(TTargetWrapper&& rhs) : Target(std::move(rhs.Target))
-	{}
-
-	bool IsEmpty() const
-	{
-		return Target == nullptr;
-	}
-
-	// Should these two be the same?
-	const IShip* operator*()
-	{
-		return Target;
-	}
-
-	const IShip* const operator*() const
-	{
-		return Target;
-	}
-
-	TTargetWrapper& operator=(const IShip* ship)
-	{
-		Target = ship;
-		return *this;
-	}
-
-	// Copy assignment operator.
-	TTargetWrapper& operator=(const TTargetWrapper& rhs)
-	{
-		Target = rhs.Target;
-		return *this;
-	}
-
-	// Move assignment operator.
-	TTargetWrapper& operator=(TTargetWrapper&& rhs)
-	{
-		if (this != &rhs)
-			Target = std::move(rhs.Target);
-		
-		return *this;
-	}
-
-	const IShip* operator->()
-	{
-		return Target;
-	}
-
-	const IShip* const operator->() const
-	{
-		return Target;
-	}
-
+	bool IsEmpty() const { return Target == nullptr; }
 private:
 	const IShip* Target;
 };
@@ -114,34 +67,31 @@ private:
 	TCoordinates& Destination;
 	TTargetWrapper& Target;
 	
-	// TODO: ! Is it legacy?
+	// TODO: ! is it legacy?
 	TCoordinates LongTermDestination;
 };
 
 class TPirate final : public AShip<IShip>
 {
 public:
-	TPirate(TCoordinates position, unsigned int mapWidth, unsigned int mapHeight);
-
-	// Can't copy unique_ptr.
-	TPirate(const TPirate& rhs) = delete;
-	TPirate operator=(const TPirate& rhs) = delete;
-
-	// Move constructor.
-	TPirate(TPirate&& rhs);
-
-	// Move assignment operator.
-	TPirate& operator=(TPirate&& rhs);
-
 	// Default constructor needed by TGame's constructor.
 	TPirate() = default;
-
 	// Do not call "delete" on Target, pirate does not own this pointer.
 	~TPirate() = default;
 
+	TPirate(TCoordinates position, unsigned int mapWidth, unsigned int mapHeight);
+	// Can't copy unique_ptr.
+	TPirate(const TPirate& rhs) = delete;
+	// Move constructor.
+	TPirate(TPirate&& rhs);
+	
+	// Copy assignment operator.
+	TPirate operator=(const TPirate& rhs) = delete;
+	// Move assignment operator.
+	TPirate& operator=(TPirate&& rhs);
 
-	// Methods below are meant to be called by TGame, because it is the only entity that holds
-	// a TPirate object:
+	/* Methods below are meant to be called by TGame, because it is the only entity that holds
+		 a TPirate object: */
 	
 	TCoordinates GetDesiredDestination(bool& needsCorrection) const;
 

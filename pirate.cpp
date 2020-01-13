@@ -6,6 +6,26 @@ namespace
 #define PIRATES_INITIAL_VELOCITY 1.0f	
 }
 
+TTargetWrapper& TTargetWrapper::operator=(const IShip* ship)
+{
+	Target = ship;
+	return *this;
+}
+
+TTargetWrapper& TTargetWrapper::operator=(const TTargetWrapper& rhs)
+{
+	Target = rhs.Target;
+	return *this;
+}
+
+TTargetWrapper& TTargetWrapper::operator=(TTargetWrapper&& rhs)
+{
+	if (this != &rhs)
+		Target = std::move(rhs.Target);
+
+	return *this;
+}
+
 TPirate::TPirate(TCoordinates position, unsigned int mapWidth, unsigned int mapHeight) :
 	AShip("The Green Oyster", PIRATES_INITIAL_VELOCITY, PIRATES_VISIBILITY, position,
 	{ 0,0 }),
