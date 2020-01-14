@@ -48,6 +48,7 @@ public:
 	virtual bool IsRunningAway() const = 0;
 	virtual void SetRunningAway() = 0;
 	virtual TCoordinates GetDestination() const = 0;
+	virtual float GetVulnerability() const = 0;
 	virtual void ChangeDestination(TCoordinates coordinates) = 0;
 
 protected:
@@ -146,6 +147,7 @@ public:
 	virtual bool IsRunningAway() const override;
 	virtual void SetRunningAway() override;
 	virtual TCoordinates GetDestination() const override;
+	virtual float GetVulnerability() const override;
 	virtual void ChangeDestination(TCoordinates coordinates) override;
 
 	virtual void debug_IntroduceYourself() const override

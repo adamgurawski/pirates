@@ -37,6 +37,11 @@ TCoordinates ACivilian::GetDestination() const
 	return Destination;
 }
 
+float ACivilian::GetVulnerability() const
+{
+	return Vulnerability;
+}
+
 void ACivilian::ChangeDestination(TCoordinates coordinates)
 {
 	Destination = coordinates;

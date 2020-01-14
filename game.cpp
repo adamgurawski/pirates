@@ -7,7 +7,8 @@
 
 TGame::TGame(options::TOptions& options)
 	: Map({ options.GetMapWidth(), options.GetMapHeight() }),
-	SimDuration(options.GetSimulationTime()), CurrentTime(0)
+	SimDuration(options.GetSimulationTime()), CurrentTime(0), Attempts(0),
+	SuccessfulAttempts(0), CurrentMaxVelocity(0)
 {
 	// Srand must be called before Map.RollPiratesPosition.
 	srand(static_cast<unsigned int>(time(NULL)));
@@ -39,9 +40,9 @@ bool TGame::Run()
 /* 1. Check whether civilians see the pirate.
 	 2. Move the civilians.	
 	 3. If one can get out of map, acknowledge it.
-	 4. Move the pirate.
-	 5. Check whether pirate has an opportunity to attack any ship.
-	 6. Attack ships, acknowledge if destroyed.*/
+	 4. Check whether pirate can find a target (if doesn't already have one).
+	 5. Move the pirate.
+	 6. Attack the target if possible, acknowledge if destroyed.*/
 // TODO: implement RunTurn.
 bool TGame::RunTurn()
 {
@@ -51,8 +52,7 @@ bool TGame::RunTurn()
 	MoveCivilians();
 	LookForCivilians();
 	MovePirate();
-	// CanAttack?
-	// Attack
+	AttackTarget();
 
 	return true;
 }
@@ -145,7 +145,7 @@ void TGame::MoveCivilian(TShipIt& it, bool& removed)
 
 		// TODO: print message?
 		// Remove ship from map and ship list.
-		Remove(it, removed);
+		removed = Remove(it);
 	}
 	else
 	{	// Can not leave.
@@ -229,8 +229,9 @@ void TGame::LookForCivilians()
 	{
 		for (const TShipPtr& civilian : Ships)
 		{
-			TCoordinates position = civilian->GetPosition();
-			if (Map.IsInRange(Pirate.GetPosition(), Pirate.GetRangeOfView(), position))
+			TCoordinates targetPosition = civilian->GetPosition();
+			if (Map.IsInRange(Pirate.GetPosition(), Pirate.GetRangeOfView(), targetPosition) &&
+				!civilian->WasAttacked())
 			{
 				Pirate.ChangeTarget(civilian.get());
 				break;
@@ -292,12 +293,48 @@ bool TGame::CanLeave(const TShipPtr& ship) const
 	}
 }
 
-void TGame::Remove(TShipIt& it, bool& removed)
+bool TGame::Remove(TShipIt& it)
 {
 	TShipPtr& ship = *it;
 	Map.Remove(ship->GetPosition());
 	it = Ships.erase(it);
-	removed = true;
+	return true;
+}
+
+void TGame::AttackTarget()
+{
+	if (!Pirate.GetTarget())
+		return;
+
+	TCoordinates piratePosition = Pirate.GetPosition();
+	TCoordinates targetPosition = Pirate.GetTarget()->GetPosition();
+	if (Map.IsInRange(piratePosition, 1, targetPosition))
+	{ // If target is next to pirate, perform an attack.
+		int roll = std::rand() % 100;
+		const IShip* target = Pirate.GetTarget();
+
+		for (auto it = Ships.begin(); it != Ships.end(); ++it)
+			if (target == it->get())
+			{
+				int vulnerability = it->get()->GetVulnerability() * 100;
+				
+				if (!(roll > vulnerability))
+				{ // Success.
+					SuccessfulAttempts++;
+					Remove(it);
+					// TODO: print message.
+				}
+				else
+				{ // Attack failed.
+					it->get()->SetAttacked();
+					// TODO: print message.
+				}
+
+				Pirate.ChangeTarget(nullptr);
+				Attempts++;
+				break;
+			}
+	}
 }
 
 // TODO: make it less ugly.

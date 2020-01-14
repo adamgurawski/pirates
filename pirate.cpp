@@ -116,13 +116,13 @@ TCoordinates TSimpleBrain::GetDesiredDestination(bool needsCorrection,
 			}
 		}
 		else
-		{ // Follow the target.
+		{ // Can't reach target in this turn, follow the target.
 			// TODO: !! Firstly align with target's X or Y, then follow along 
 			// the second axis.
 		}
 	}
 	else
-	{ // Zig-zag.
+	{ // TODO: Zig-zag.
 
 	}
 
@@ -176,7 +176,6 @@ TCoordinates TSimpleBrain::GetPositionNearTarget(bool needsCorrection,
 	bool leftInaccessible = target.X == 0;
 	bool rightInaccessible = target.X == MaxX;
 	
-	// TODO: if not at borders!
 	TCoordinates up = target + TCoordinates({ static_cast<unsigned>(0),
 		static_cast<unsigned>(1) });
 	TCoordinates down = target - TCoordinates({ static_cast<unsigned>(0),
