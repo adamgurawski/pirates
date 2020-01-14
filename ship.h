@@ -4,8 +4,7 @@
 // Disable "... inherits via dominance" warning.
 #pragma warning (disable: 4250)
 
-// Atempt to silence "this function may not throw"
-// Actually it might not be working as desired.
+// Disable "this kind of function may not throw".
 #pragma warning (disable: 26439)
 
 #include <iostream> // debugging purposes
@@ -19,11 +18,11 @@ struct TCoordinates
 };
 
 /*
-		IShip             AShip (template)
+		IShip             AShip (template deriving from IShip or ICivilian)
 			|              |      |
 	ICivilian	     TPirate    ACivilian
 	                          |   |    |
-													concrete classes
+													concrete civilian classes
 */
 
 class IShip
@@ -103,6 +102,25 @@ protected:
 		TCoordinates destination) : Name(name), Velocity(velocity), Visibility(visibility),
 		Position(position), Destination(destination)
 	{}
+
+	// Move constructor.
+	AShip(AShip&& rhs) : Name(std::move(rhs.Name)),
+		Velocity(std::move(rhs.Velocity)),
+		Visibility(std::move(rhs.Visibility)),
+		Position(std::move(rhs.Position)),
+		Destination(std::move(rhs.Destination))
+	{}
+
+	// Move assignment operator.
+	AShip& operator=(AShip&& rhs)
+	{
+		Name = std::move(rhs.Name);
+		Velocity = std::move(rhs.Velocity);
+		Visibility = std::move(rhs.Visibility);
+		Position = std::move(rhs.Position);
+		Destination = std::move(rhs.Destination);
+		return *this;
+	}
 
 protected:
 	// Name. Separate identificator to be added? Is it neccessary?

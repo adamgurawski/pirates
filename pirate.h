@@ -28,6 +28,7 @@ public:
 	TTargetWrapper& operator=(TTargetWrapper&& rhs);
 
 	bool IsEmpty() const { return Target == nullptr; }
+
 private:
 	const IShip* Target;
 };
@@ -36,8 +37,8 @@ class IPirateBrain
 {
 public:
 	virtual ~IPirateBrain() = default;
-
 	virtual TCoordinates GetDesiredDestination(bool& nedsCorrection) = 0;
+	virtual void SetMapBorders(unsigned int maxX, unsigned int maxY) = 0;
 
 protected:
 	IPirateBrain() = default;
@@ -46,10 +47,15 @@ protected:
 class TSimpleBrain : public IPirateBrain
 {
 public:
-	TSimpleBrain(int maxX, int maxY, TCoordinates& position, 
-		TCoordinates& destination, float& velocity, TTargetWrapper& target);
+	TSimpleBrain(TCoordinates& position, TCoordinates& destination,  float& velocity, 
+		TTargetWrapper& target);
+
+	// Move assignment operator.
+	TSimpleBrain& operator=(TSimpleBrain&& rhs);
 
 	virtual TCoordinates GetDesiredDestination(bool& needsCorrection) override;
+	
+	virtual void SetMapBorders(unsigned int maxX, unsigned int maxY) override;
 
 private:
 	// TODO: comment.
@@ -58,14 +64,14 @@ private:
 	bool CanReachDesiredDestination(int modifier = 0) const;
 	
 private:
-	int MaxX;
-	int MaxY;
+	unsigned int MaxX;
+	unsigned int MaxY;
 	
 	// References to TPirate's members.
-	const float& Velocity;
-	const TCoordinates& Position;
-	const TCoordinates& Destination;
-	const TTargetWrapper& Target;
+	float& Velocity;
+	TCoordinates& Position;
+	TCoordinates& Destination;
+	TTargetWrapper& Target;
 	
 	// TODO: ! is it legacy?
 	TCoordinates LongTermDestination;
@@ -79,29 +85,27 @@ public:
 	// Do not call "delete" on Target, pirate does not own this pointer.
 	~TPirate() = default;
 
-	TPirate(TCoordinates position, unsigned int mapWidth, unsigned int mapHeight);
-	// Can't copy unique_ptr.
-	TPirate(const TPirate& rhs) = delete;
+	TPirate(TCoordinates position);
 	// Move constructor.
 	TPirate(TPirate&& rhs);
-	
-	// Copy assignment operator.
-	TPirate operator=(const TPirate& rhs) = delete;
 	// Move assignment operator.
 	TPirate& operator=(TPirate&& rhs);
 
-	/* Methods below are meant to be called by TGame, because it is the only entity that holds
-		 a TPirate object: */
+	// Methods below are meant to be called by TGame, because it is the only entity that holds
+	// a TPirate object.
 	
-	TCoordinates GetDesiredDestination(bool& needsCorrection) const;
 
+	TCoordinates GetDesiredDestination(bool& needsCorrection) const;
 	// Set Velocity as fastestCivilian multiplied by 1.25.
 	void ModifyVelocity(float fastestCivilianVelocity);
 
 	void ChangeTarget(const IShip* target);
+
 	const IShip* GetTarget() const;
 
 	void ChangeDestination(const TCoordinates& destination);
+	// Pass map borders to Brain.
+	void SetMapBorders(unsigned int maxX, unsigned int maxY);
 
 	virtual void debug_IntroduceYourself() const override;
 	virtual bool debug_IsPirate() const override

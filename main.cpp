@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+// TODO: !! implement AShip move constructor.
 // TODO: !! TSimpleBrain and TPirate's move mechanism.
 /* TODO: !! improve civilians' fleeing when the pirate was spotted (seems like it's not
 			   working correctly if the closest border position == ship.position)

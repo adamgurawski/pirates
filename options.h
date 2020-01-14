@@ -22,8 +22,8 @@
 struct TShipInfo
 {
 	std::string Name;
-	float Velocity;
-	int TimeToGeneration;
+	float				Velocity;
+	int					TimeToGeneration;
 };
 
 // Comparer used by ship info set.
@@ -60,7 +60,7 @@ public:
 		return MapHeight;
 	}
 
-	TShipInfoSet&& GetShipInfo()
+	TShipInfoSet&& StealShipInfo()
 	{
 		return std::move(Ships);
 	}
@@ -110,9 +110,8 @@ private:
 	unsigned int MapWidth;
 	unsigned int MapHeight;
 
-	// Based on data stored in this vector, the ships will be created by TGame
-	// Update: changed into multiset in order to allow sorted inserting.
-	// TODO: verify that elements are inserted in desired order.
+	// Based on data stored in this vector, the ships will be created by TGame.
+	// It's a multiset in order to allow sorted inserting.
 	TShipInfoSet Ships;
 };
 

@@ -13,23 +13,23 @@ TGame::TGame(options::TOptions& options)
 	srand(static_cast<unsigned int>(time(NULL)));
 
 	// Create pirate and place it on the map.
-	Pirate = std::move(TPirate(Map.RollPiratesPosition(), Map.GetWidth(), Map.GetHeight()));
+	Pirate = std::move(TPirate(Map.RollPiratesPosition()));
+	Pirate.SetMapBorders(Map.GetWidth(), Map.GetHeight());
 	Map.PlaceOnMap(Pirate.GetPosition(), static_cast<const IShip*>(&Pirate));
 
-	ShipsInfo = options.GetShipInfo();
-	GenerateShips();
+	// Will not be using options anymore, can steal ShipInfo to prevent unnecessary copying.
+	ShipsInfo = options.StealShipInfo();
 			
 	Pirate.debug_IntroduceYourself();
-	Map.debug_PrintMap();
 }
 
 // TODO: implement Run().
 bool TGame::Run()
 { 
-	GenerateShips();
-
 	for (; CurrentTime < SimDuration; ++CurrentTime)
 	{
+		// Generate ships which TimeToGeneration equals CurrentTime.
+		GenerateShips();
 		RunTurn();
 	}
 
@@ -45,6 +45,7 @@ bool TGame::Run()
 // TODO: implement RunTurn.
 bool TGame::RunTurn()
 {
+	Map.debug_PrintMap();
 	// Change ships' destination if they are in danger (get to the closest border).
 	LookForPirates();
 	MoveCivilians();
@@ -52,7 +53,6 @@ bool TGame::RunTurn()
 	// CanAttack?
 	// Attack
 
-	Map.debug_PrintMap();
 	return true;
 }
 
@@ -105,6 +105,7 @@ void TGame::GenerateShips()
 		it = ShipsInfo.erase(it);
 	}
 }
+
 TCoordinates TGame::SetTemporaryDestination(int velocity, 
 	TCoordinates position, TCoordinates destination) const
 {
@@ -128,29 +129,32 @@ TCoordinates TGame::SetTemporaryDestination(int velocity,
 	return result;
 }
 
-
 void TGame::MoveCivilian(TShipIt& it, bool& removed)
 {
 	TShipPtr& ship = *it;
 	TCoordinates destination = ship->GetDestination();
 	TCoordinates position = ship->GetPosition();
-	int velocity = static_cast<int>(std::round(ship->GetVelocity()));
 
 	if (CanLeave(ship))
-	{ // If this ship was pirate's target, nullify target, remove ship from map, print message?
-		if (static_cast<IShip*>(ship.get()) == Pirate.GetTarget())
+	{
+		if (ship.get() == Pirate.GetTarget())
+		{ // Ship was pirate's target.
 			Pirate.ChangeTarget(nullptr);
+		}
 
 		// TODO: print message?
+		// Remove ship from map and ship list.
 		Remove(it, removed);
 	}
 	else
-	{	
+	{	// Can not leave.
 		if (!Map.HasEmptyCoordinates())
-		{ // Do not move. TODO: throw exception?
+		{ // Do not move, there is nowhere to go. TODO: throw exception?
 			return;
 		}
-
+		// Civilians move only in a straight line so treat velocity as an integer
+		// in this case.
+		int velocity = static_cast<int>(std::trunc(ship->GetVelocity()));
 		TCoordinates target = SetTemporaryDestination(velocity, position, 
 			destination);
 
@@ -159,7 +163,7 @@ void TGame::MoveCivilian(TShipIt& it, bool& removed)
 			velocity -= 1;
 
 			if (velocity < 1)
-			{ // Do not move. Should I throw exception?
+			{ // Do not move. Should throw exception?
 				return;
 			}
 
@@ -199,7 +203,7 @@ void TGame::MoveCivilians()
 		
 		if (!removed)
 			++it;
-		// else iterator was moved by Move()
+		// else iterator was moved by MoveCivilian()
 	}
 }
 

@@ -20,38 +20,31 @@ TTargetWrapper& TTargetWrapper::operator=(const TTargetWrapper& rhs)
 
 TTargetWrapper& TTargetWrapper::operator=(TTargetWrapper&& rhs)
 {
-	if (this != &rhs)
-		Target = std::move(rhs.Target);
-
+	Target = std::move(rhs.Target);
 	return *this;
 }
 
-TPirate::TPirate(TCoordinates position, unsigned int mapWidth, unsigned int mapHeight) :
+TPirate::TPirate(TCoordinates position) :
 	AShip("The Green Oyster", PIRATES_INITIAL_VELOCITY, PIRATES_VISIBILITY, position,
 	{ 0,0 }),
 	Target(nullptr)
 {
-	Brain = std::make_unique<TSimpleBrain>(mapWidth - 1, mapHeight - 1, Position, Destination,
-		Velocity, Target);
+	Brain = std::make_unique<TSimpleBrain>(Position, Destination, Velocity, Target);
 }
 
-TPirate::TPirate(TPirate&& rhs) :  
-	AShip(rhs.Name, rhs.Velocity, rhs.Visibility, rhs.Position, rhs.Destination),
-	Target(std::move(rhs.Target))
+TPirate::TPirate(TPirate&& rhs) : AShip(std::move(rhs)),
+Target(std::move(rhs.Target))
 {
 	Brain = std::move(rhs.Brain);
 }
 
 TPirate& TPirate::operator=(TPirate&& rhs)
 {
-	Brain = std::move(rhs.Brain);
-	Destination = std::move(rhs.Destination);
-	Name = std::move(rhs.Name);
-	Position = std::move(rhs.Position);
-	Velocity = std::move(rhs.Velocity);
-	Visibility = std::move(rhs.Visibility);
+	AShip::operator=(std::move(rhs));
+	// Delete old Brain.
+	rhs.Brain.reset();;
 	Target = std::move(rhs.Target);
-
+	Brain = std::make_unique<TSimpleBrain>(Position, Destination, Velocity, Target);
 	return *this;
 }
 
@@ -80,9 +73,14 @@ void TPirate::ChangeDestination(const TCoordinates& destination)
 	Destination = destination;
 }
 
-TSimpleBrain::TSimpleBrain(int maxX, int maxY, TCoordinates& position,
-	TCoordinates& destination, float& velocity, TTargetWrapper& target) : MaxX(maxX),
-	MaxY(maxY),	LongTermDestination({ 0,0 }), Position(position), 
+void TPirate::SetMapBorders(unsigned int maxX, unsigned int maxY)
+{
+	Brain->SetMapBorders(maxX, maxY);
+}
+
+TSimpleBrain::TSimpleBrain(TCoordinates& position,
+	TCoordinates& destination, float& velocity, TTargetWrapper& target) : 
+	MaxX(0), MaxY(0),	LongTermDestination({ 0,0 }), Position(position), 
 	Destination(destination), Velocity(velocity), Target(target)
 {
 }
@@ -101,16 +99,38 @@ TCoordinates TSimpleBrain::GetDesiredDestination(bool& needsCorrection)
 	else
 	{
 		int modifier = 1;
-		HandleDesiredDestination(modifier);
+		desiredDestination = HandleDesiredDestination(modifier);
 	}
 
 	return desiredDestination;
 }
 
+void TSimpleBrain::SetMapBorders(unsigned int maxX, unsigned int maxY)
+{
+	MaxX = maxX;
+	MaxY = maxY;
+}
+
+TSimpleBrain& TSimpleBrain::operator=(TSimpleBrain&& rhs)
+{
+	MaxX = std::move(rhs.MaxX);
+	MaxY = std::move(rhs.MaxY);
+	Velocity = std::move(rhs.Velocity);
+	Position = std::move(rhs.Position);
+	Destination = std::move(rhs.Destination);
+	Target = std::move(rhs.Target);
+	LongTermDestination = std::move(LongTermDestination);
+
+	return *this;
+}
+
+// TODO: !! make it work.
 TCoordinates TSimpleBrain::HandleDesiredDestination(int modifier)
 {
-	if (Target.IsEmpty())
+	if (!Target.IsEmpty())
 	{ // Chase the target.
+		// TODO: !! Firstly align with target's X or Y, then follow along 
+		// the second axis.
 		// legacy?
 		// LongTermDestination = Target->GetPosition();
 		if (CanReachDesiredDestination(modifier))
@@ -118,8 +138,7 @@ TCoordinates TSimpleBrain::HandleDesiredDestination(int modifier)
 	}
 	else
 	{ // Zig-zag.
-		// TODO: !! Firstly align with target's X or Y, then follow along 
-		// the second axis.
+
 	}
 
 	// Temporary until implemented.
