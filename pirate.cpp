@@ -1,8 +1,11 @@
 #include "pirate.h"
 
+#include <cassert>
+#include <vector>
+
 namespace
 {
-#define PIRATES_VISIBILITY 3.0f
+#define PIRATES_VISIBILITY 5.0f
 #define PIRATES_INITIAL_VELOCITY 1.0f	
 }
 
@@ -44,13 +47,15 @@ TPirate& TPirate::operator=(TPirate&& rhs)
 	// Delete old Brain.
 	rhs.Brain.reset();;
 	Target = std::move(rhs.Target);
+	// Create new brain referencing proper TPirate's members. 
 	Brain = std::make_unique<TSimpleBrain>(Position, Destination, Velocity, Target);
 	return *this;
 }
 
-TCoordinates TPirate::GetDesiredDestination(bool& needsCorrection) const
+TCoordinates TPirate::GetDesiredDestination(bool needsCorrection, 
+	unsigned int attempts)
 {
-	return Brain->GetDesiredDestination(needsCorrection);
+	return Brain->GetDesiredDestination(needsCorrection, attempts);
 }
 
 void TPirate::ModifyVelocity(float fastestCivilianVelocity)
@@ -61,6 +66,8 @@ void TPirate::ModifyVelocity(float fastestCivilianVelocity)
 void TPirate::ChangeTarget(const IShip* target)
 {
 	Target = target;
+	if (!Target.IsEmpty())
+		Destination = Target->GetPosition();
 }
 
 const IShip* TPirate::GetTarget() const
@@ -90,19 +97,38 @@ TSimpleBrain::TSimpleBrain(TCoordinates& position,
 	 2. If needs correction, return genuine desired destination - 1 tile.
 	 3. Repeat 2, when Destination = Position return Position?
 */
-TCoordinates TSimpleBrain::GetDesiredDestination(bool& needsCorrection)
+TCoordinates TSimpleBrain::GetDesiredDestination(bool needsCorrection,
+	unsigned int attempts)
 {
-	TCoordinates desiredDestination;
+	TCoordinates destination = Position;
 
-	if (!needsCorrection)
-		desiredDestination = HandleDesiredDestination();
+	if (!Target.IsEmpty())
+	{ // Chase the target.
+		TCoordinates targetPosition = Target->GetPosition();
+
+		if (CanReach(targetPosition))
+		{ // Go as close to target as possible.
+			bool isAnyEmpty = true;
+			destination = GetPositionNearTarget(needsCorrection, isAnyEmpty, 
+				attempts);
+			if (!isAnyEmpty)
+			{ // No space near target to get to. Return position.
+			}
+		}
+		else
+		{ // Follow the target.
+			// TODO: !! Firstly align with target's X or Y, then follow along 
+			// the second axis.
+		}
+	}
 	else
-	{
-		int modifier = 1;
-		desiredDestination = HandleDesiredDestination(modifier);
+	{ // Zig-zag.
+
 	}
 
-	return desiredDestination;
+	// Temporary until implemented.
+	Destination = destination;
+	return Destination;
 }
 
 void TSimpleBrain::SetMapBorders(unsigned int maxX, unsigned int maxY)
@@ -124,42 +150,63 @@ TSimpleBrain& TSimpleBrain::operator=(TSimpleBrain&& rhs)
 	return *this;
 }
 
-// TODO: !! make it work.
-TCoordinates TSimpleBrain::HandleDesiredDestination(int modifier)
+bool TSimpleBrain::CanReach(TCoordinates point) const
 {
-	if (!Target.IsEmpty())
-	{ // Chase the target.
-		// TODO: !! Firstly align with target's X or Y, then follow along 
-		// the second axis.
-		// legacy?
-		// LongTermDestination = Target->GetPosition();
-		if (CanReachDesiredDestination(modifier))
-			return Destination;
-	}
-	else
-	{ // Zig-zag.
-
-	}
-
-	// Temporary until implemented.
-	return Position;
-}
-
-bool TSimpleBrain::CanReachDesiredDestination(int modifier) const
-{
-	float velocity = Velocity - modifier;
-	TCoordinates target = Target->GetPosition();
-
-	int x = std::abs(static_cast<int>(target.X - Position.X));
-	int y = std::abs(static_cast<int>(target.Y - Position.Y));
+	int x = std::abs(static_cast<int>(point.X - Position.X));
+	int y = std::abs(static_cast<int>(point.Y - Position.Y));
 
 	float powX = std::pow(x, 2);
 	float powY = std::pow(y, 2);
 	float powDistance = powX + powY;
 	float distance = std::sqrt(powDistance);
 
-	return !(distance > velocity);
+	return !(distance > Velocity);
 }
+TCoordinates TSimpleBrain::GetPositionNearTarget(bool needsCorrection,
+	bool& isAnyEmpty, unsigned int attempts) const
+{ // TODO: ! implement.
+	assert(!Target.IsEmpty() && "Target must be set.");
+	assert(CanReach(Target->GetPosition()) &&
+		"Can be called only when target is reachable.");
+
+	TCoordinates target = Target->GetPosition();
+
+	bool upInaccessible = target.Y == MaxY;
+	bool downInaccessible = target.Y == 0;
+	bool leftInaccessible = target.X == 0;
+	bool rightInaccessible = target.X == MaxX;
+	
+	// TODO: if not at borders!
+	TCoordinates up = target + TCoordinates({ static_cast<unsigned>(0),
+		static_cast<unsigned>(1) });
+	TCoordinates down = target - TCoordinates({ static_cast<unsigned>(0),
+		static_cast<unsigned>(1) });
+	TCoordinates left = target - TCoordinates({ static_cast<unsigned>(1),
+		static_cast<unsigned>(0) });
+	TCoordinates right = target + TCoordinates({ static_cast<unsigned>(1),
+		static_cast<unsigned>(0) });
+	
+	std::vector<TCoordinates> coordinates;
+
+	if (!upInaccessible && CanReach(up))
+		coordinates.push_back(up);
+	else if (!leftInaccessible && CanReach(left))
+		coordinates.push_back(left);
+	else if (!rightInaccessible && CanReach(right))
+		coordinates.push_back(right);
+	else if (!downInaccessible && CanReach(down))
+		coordinates.push_back(down);
+	else
+		isAnyEmpty = false;
+
+	if (attempts - 1 < coordinates.size())
+	{
+		Destination = coordinates.at(attempts - 1);
+	}
+
+	return Destination;
+}
+
 
 void TPirate::debug_IntroduceYourself() const
 {

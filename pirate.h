@@ -37,7 +37,8 @@ class IPirateBrain
 {
 public:
 	virtual ~IPirateBrain() = default;
-	virtual TCoordinates GetDesiredDestination(bool& nedsCorrection) = 0;
+	virtual TCoordinates GetDesiredDestination(bool nedsCorrection,
+		unsigned int attempts) = 0;
 	virtual void SetMapBorders(unsigned int maxX, unsigned int maxY) = 0;
 
 protected:
@@ -53,15 +54,19 @@ public:
 	// Move assignment operator.
 	TSimpleBrain& operator=(TSimpleBrain&& rhs);
 
-	virtual TCoordinates GetDesiredDestination(bool& needsCorrection) override;
+	virtual TCoordinates GetDesiredDestination(bool needsCorrection,
+		unsigned int attempts) override;
 	
 	virtual void SetMapBorders(unsigned int maxX, unsigned int maxY) override;
 
 private:
-	// TODO: comment.
-	TCoordinates HandleDesiredDestination(int modifier = 0);
-	// TODO: shouldn't it be called "CanReachTarget" in the current form?
-	bool CanReachDesiredDestination(int modifier = 0) const;
+	// Return true if coordinates are reachable in this turn.
+	bool CanReach(TCoordinates point) const;
+	// Return reachable coordinates with distance to target no longer than 1.
+	// Return isAnyEmpty = false when there is no available coordinates 
+	// of this sort.
+	TCoordinates GetPositionNearTarget(bool needsCorrection, 
+		bool& isAnyEmpty, unsigned int attempts)	const;
 	
 private:
 	unsigned int MaxX;
@@ -84,7 +89,7 @@ public:
 	TPirate() = default;
 	// Do not call "delete" on Target, pirate does not own this pointer.
 	~TPirate() = default;
-
+	// 
 	TPirate(TCoordinates position);
 	// Move constructor.
 	TPirate(TPirate&& rhs);
@@ -94,8 +99,10 @@ public:
 	// Methods below are meant to be called by TGame, because it is the only entity that holds
 	// a TPirate object.
 	
-
-	TCoordinates GetDesiredDestination(bool& needsCorrection) const;
+	// Use Brain to return desired destination.
+	// (note that Brain changes Destination member)
+	TCoordinates GetDesiredDestination(bool needsCorrection, 
+		unsigned int attempts);
 	// Set Velocity as fastestCivilian multiplied by 1.25.
 	void ModifyVelocity(float fastestCivilianVelocity);
 

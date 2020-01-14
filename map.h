@@ -1,26 +1,15 @@
 #ifndef _MAP_H
 #define _MAP_H
 
+#include "coordinates.h"
 #include "ship.h" // debug
-class IShip;
 
 #include <iomanip> // debug
 #include <iostream> // debug
 #include <map>
 #include <memory>
 
-/*
-struct TCoordinates
-{
-	unsigned int X = 0;
-	unsigned int Y = 0;
-};
-*/
-
-struct TCoordinatesComparer
-{
-	bool operator()(TCoordinates lhs, TCoordinates rhs) const;
-};
+class IShip;
 
 class TMap
 {

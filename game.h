@@ -53,6 +53,9 @@ private:
 
 	// Check for every ship if it can see the pirates. If so, change its destination (flee).
 	void LookForPirates();
+	// Check if pirate can spot any civilian to set it as a target. Do nothing if pirate's target is
+	// other than nullptr.
+	void LookForCivilians();
 
 	// Return true if the pirate is in ship's range of view. 
 	bool SeesPirate(const TShipPtr& ship) const;

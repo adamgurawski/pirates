@@ -1,21 +1,17 @@
 #ifndef _SHIP_H
 #define _SHIP_H
 
+#include <iostream> // debugging purposes
+#include <memory>
+#include <string>
+
+#include "coordinates.h"
+
 // Disable "... inherits via dominance" warning.
 #pragma warning (disable: 4250)
 
 // Disable "this kind of function may not throw".
 #pragma warning (disable: 26439)
-
-#include <iostream> // debugging purposes
-#include <memory>
-#include <string>
-
-struct TCoordinates
-{
-	unsigned int X = 0;
-	unsigned int Y = 0;
-};
 
 /*
 		IShip             AShip (template deriving from IShip or ICivilian)
@@ -90,7 +86,7 @@ public:
 		std::cout << "Name: " << Name << std::endl << "Velocity: " <<
 			Velocity << std::endl << "Visibility: " << Visibility << std::endl <<
 			"Position: [" << Position.X << " " << Position.Y << "]" << std::endl <<
-			"Destination: " << Destination.X << " " << Destination.Y << std::endl;
+			"Destination: [" << Destination.X << " " << Destination.Y << "]" << std::endl;
 	}
 
 protected:

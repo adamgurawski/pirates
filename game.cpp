@@ -49,6 +49,7 @@ bool TGame::RunTurn()
 	// Change ships' destination if they are in danger (get to the closest border).
 	LookForPirates();
 	MoveCivilians();
+	LookForCivilians();
 	MovePirate();
 	// CanAttack?
 	// Attack
@@ -182,11 +183,13 @@ void TGame::MovePirate()
 	bool needsCorrection = false;
 	TCoordinates destination;
 
+	unsigned int attempts = 0;
 	do
 	{
-		destination = Pirate.GetDesiredDestination(needsCorrection);
+		++attempts;
+		destination = Pirate.GetDesiredDestination(needsCorrection, attempts);
 		needsCorrection = Map.IsEmpty(destination) ? false : true;
-	} while (needsCorrection);
+	} while (needsCorrection && attempts < 4);
 	
 	Map.Move(&Pirate, destination);
 	Pirate.Move(destination);
@@ -220,6 +223,23 @@ void TGame::LookForPirates()
 	}
 }
 
+void TGame::LookForCivilians()
+{
+	if (!Pirate.GetTarget())
+	{
+		for (const TShipPtr& civilian : Ships)
+		{
+			TCoordinates position = civilian->GetPosition();
+			if (Map.IsInRange(Pirate.GetPosition(), Pirate.GetRangeOfView(), position))
+			{
+				Pirate.ChangeTarget(civilian.get());
+				break;
+			}
+		}
+	}
+	// else do nothing, pirate already has a target.
+}
+
 bool TGame::SeesPirate(const TShipPtr& ship) const
 {
 	TCoordinates piratePosition = Pirate.GetPosition();
@@ -233,6 +253,10 @@ bool TGame::CanLeave(const TShipPtr& ship) const
 {
 	TCoordinates destination = ship->GetDestination();
 	TCoordinates position = ship->GetPosition();
+
+	if (position == destination)
+		return true;
+
 	float velocity = ship->GetVelocity();
 
 	if (destination.X == position.X)
