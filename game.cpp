@@ -21,7 +21,8 @@ TGame::TGame(options::TOptions& options)
 	// Will not be using options anymore, can steal ShipInfo to prevent unnecessary copying.
 	ShipsInfo = options.StealShipInfo();
 			
-	Pirate.debug_IntroduceYourself();
+	// TODO: debug
+	// Pirate.debug_IntroduceYourself();
 }
 
 // TODO: implement Run().
@@ -29,11 +30,14 @@ bool TGame::Run()
 { 
 	for (; CurrentTime < SimDuration; ++CurrentTime)
 	{
+		// TODO: make messenger handle this.
+		std::cout << "Turn: " << CurrentTime + 1 << std::endl;
 		// Generate ships which TimeToGeneration equals CurrentTime.
 		GenerateShips();
 		RunTurn();
 	}
 
+	Messenger.OnEnd(Attempts, SuccessfulAttempts);
 	return true;
 }
 
@@ -46,7 +50,7 @@ bool TGame::Run()
 // TODO: implement RunTurn.
 bool TGame::RunTurn()
 {
-	Map.debug_PrintMap();
+	//Map.debug_PrintMap();
 	// Change ships' destination if they are in danger (get to the closest border).
 	LookForPirates();
 	MoveCivilians();
@@ -92,8 +96,8 @@ void TGame::CreateShip(const TShipInfo& shipInfo)
 	const IShip* addedShip = Ships.back().get();
 	Map.PlaceOnMap(addedShip->GetPosition(), addedShip);
 
-	// Debug.
-	addedShip->debug_IntroduceYourself();
+	// TODO: Debug.
+	// addedShip->debug_IntroduceYourself();
 }
 
 void TGame::GenerateShips()
@@ -143,7 +147,7 @@ void TGame::MoveCivilian(TShipIt& it, bool& removed)
 			Pirate.ChangeTarget(nullptr);
 		}
 
-		// TODO: print message?
+		Messenger.OnLeave(ship.get(), destination);
 		// Remove ship from map and ship list.
 		removed = Remove(it);
 	}
@@ -321,13 +325,13 @@ void TGame::AttackTarget()
 				if (!(roll > vulnerability))
 				{ // Success.
 					SuccessfulAttempts++;
+					Messenger.OnAttack(true, target);
 					Remove(it);
-					// TODO: print message.
 				}
 				else
 				{ // Attack failed.
 					it->get()->SetAttacked();
-					// TODO: print message.
+					Messenger.OnAttack(false, target);
 				}
 
 				Pirate.ChangeTarget(nullptr);

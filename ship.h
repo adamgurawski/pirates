@@ -26,6 +26,7 @@ class IShip
 public:
 	virtual ~IShip() = default;
 
+	virtual std::string GetName() const = 0;
 	virtual float GetVelocity() const = 0;
 	virtual float GetRangeOfView() const = 0;
 	virtual TCoordinates GetPosition() const = 0;
@@ -61,6 +62,11 @@ class AShip : public Interface
 {
 public:
 	virtual ~AShip() = default;
+
+	virtual std::string GetName() const override
+	{
+		return Name;
+	}
 
 	virtual float GetVelocity() const override
 	{

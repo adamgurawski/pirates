@@ -20,3 +20,9 @@ bool operator==(const TCoordinates& lhs, const TCoordinates& rhs)
 {
 	return (lhs.X == rhs.X) && (lhs.Y == rhs.Y);
 }
+
+std::ostream& operator<<(std::ostream& stream, const TCoordinates& coordinates)
+{
+	stream << "[" << coordinates.X << " " << coordinates.Y << "]";
+	return stream;
+}

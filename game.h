@@ -4,6 +4,7 @@
 #define _GAME_H
 
 #include "map.h"
+#include "messenger.h"
 #include "options.h"
 #include "pirate.h"
 #include "ship.h"
@@ -69,6 +70,9 @@ private:
 	void CorrectMaxVelocity(float newVelocity);
 
 private:
+	// Responsible for printing dialogues to console.
+	TMessenger Messenger;
+	// Stores map representation as std::map<coordinates, ship pointer>.
 	TMap Map;
 	// Current simulation time.
 	unsigned int CurrentTime;
