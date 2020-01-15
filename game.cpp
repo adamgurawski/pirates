@@ -141,6 +141,7 @@ void TGame::MoveCivilian(TShipIt& it, bool& removed)
 		if (ship.get() == Pirate.GetTarget())
 		{ // Ship was pirate's target.
 			Pirate.ChangeTarget(nullptr);
+			Messenger.OnChangeTarget(Pirate);
 		}
 
 		Messenger.OnLeave(ship.get(), destination);
@@ -217,9 +218,11 @@ void TGame::LookForPirates()
 	{
 		if (!ship->IsRunningAway() && SeesPirate(ship))
 		{ // Force ship to run away -> change its destination and set "RunningAway" to true.
+			TCoordinates oldDestination = ship->GetDestination();
 			TCoordinates newDestination = Map.CalculateClosestExit(ship->GetPosition());
 			ship->ChangeDestination(newDestination);
 			ship->SetRunningAway();
+			Messenger.OnPirateSpotted(ship.get(), oldDestination, newDestination);
 		}
 	}
 }
@@ -238,6 +241,7 @@ void TGame::LookForCivilians()
 			if (IsInRange(piratePosition, visibility, targetPosition) && wasNotAttacked)
 			{
 				Pirate.ChangeTarget(civilian.get());
+				Messenger.OnChangeTarget(Pirate);
 				break;
 			}
 		}
@@ -350,6 +354,7 @@ void TGame::AttackTarget()
 				}
 
 				Pirate.ChangeTarget(nullptr);
+				Messenger.OnChangeTarget(Pirate);
 				Attempts++;
 				break;
 			}

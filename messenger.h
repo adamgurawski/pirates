@@ -5,6 +5,7 @@
 #include "map.h"
 
 class IShip;
+class TPirate;
 
 class TMessenger
 {
@@ -29,6 +30,11 @@ public:
 	// Print info about movement of a ship (pirate/civilian).
 	void OnMove(const IShip* ship, const TCoordinates& lastPosition, 
 		bool isPirate = false) const;
+	// Print info about ship changing destination due to proximity to the pirate.
+	void OnPirateSpotted(const IShip* ship, const TCoordinates& oldDestination,
+		const TCoordinates& newDestination) const;
+	// Print new target's name when pirate changes the target.
+	void OnChangeTarget(const TPirate& pirate) const;
 
 private:
 	bool Graphical;

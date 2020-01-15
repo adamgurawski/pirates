@@ -1,4 +1,5 @@
 #include "messenger.h"
+#include "pirate.h"
 #include "ship.h"
 
 #include <cassert>
@@ -52,4 +53,36 @@ void TMessenger::OnMove(const IShip* ship, const TCoordinates& lastPosition,
 	else
 		std::cout << shipType << ship->GetName() << " moved from " << lastPosition <<
 			" to " << currentPosition << "." << std::endl;
+}
+
+void TMessenger::OnPirateSpotted(const IShip* ship, const TCoordinates& oldDestination,
+	const TCoordinates& newDestination) const
+{
+	if (!Verbose)
+		return;
+
+	assert(ship);
+	std::cout << "Civilian ship " << ship->GetName() << " spotted the pirate, " <<
+		"so it changed its destination from " << oldDestination << " to " <<
+		newDestination << "." << std::endl;
+}
+
+void TMessenger::OnChangeTarget(const TPirate& pirate) const
+{
+	if (!Verbose)
+		return;
+
+	if (pirate.GetTarget())
+	{
+		std::string targetName = pirate.GetTarget()->GetName();
+		TCoordinates targetPosition = pirate.GetTarget()->GetPosition();
+
+		std::cout << "Pirate ship " << pirate.GetName() << " changed its target to " <<
+			targetName << " located at position " << targetPosition << "." << std::endl;
+	}
+	else
+	{ // Target == nullptr.
+		std::cout << "Pirate ship " << pirate.GetName() << " does not have a target anymore."
+			<< std::endl;
+	}
 }

@@ -70,6 +70,7 @@ void TPirate::ChangeTarget(const IShip* target)
 	Target = target;
 	if (!Target.IsEmpty())
 		Destination = Target->GetPosition();
+
 }
 
 const IShip* TPirate::GetTarget() const

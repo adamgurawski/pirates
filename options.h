@@ -63,9 +63,7 @@ public:
 		{ return ValidParams; }
 
 	TShipInfoSet&& StealShipInfo()
-	{
-		return std::move(Ships);
-	}
+		{ return std::move(Ships); }
 
 private:
 	// Check if exactly one -t/-m is present and minimum of one -s.
