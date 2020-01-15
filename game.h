@@ -28,7 +28,7 @@ public:
 	
 	// Run the game, call RunTurn every time unit and update time.
 	bool Run();
-
+	// Run one turn.
 	bool RunTurn();
 
 private:
@@ -82,7 +82,6 @@ private:
 	// User-defined simulation time.
 	unsigned int SimDuration;
 	// Stores information about ships to be generated sorted ascending by time to generation.
-	// (the closer to generation the higher in set)
 	// When a ship gets created, it is added to Ship list and also deleted from shipInfo set.
 	TShipInfoSet ShipsInfo;
 	// List of generated ships.
@@ -91,7 +90,7 @@ private:
 	unsigned int Attempts;
 	// Number of successful pirate's attack attempts.
 	unsigned int SuccessfulAttempts;
-	// The speed of the fastest ship on map.
+	// The speed of the fastest civilian on map.
 	float CurrentMaxVelocity;
 	// The pirate.
 	TPirate Pirate;

@@ -111,16 +111,23 @@ TCoordinates TSimpleBrain::GetDesiredDestination(bool needsCorrection,
 		if (CanReach(targetPosition))
 		{ // Go as close to target as possible.
 			bool isAnyEmpty = true;
+
 			destination = GetPositionNearTarget(needsCorrection, isAnyEmpty, 
 				attempts);
+
+			// TODO: is this correct?
 			if (!isAnyEmpty)
 			{ // No space near target to get to. Return position.
 			}
 		}
 		else
 		{ // Can't reach target in this turn, follow the target.
-			// TODO: !! Firstly align with target's X or Y, then follow along 
-			// the second axis.
+			// In this case pirate moves along X/Y axis, so it's possible to 
+			// treat velocity as an integer.
+			int velocity = std::trunc(Velocity) - attempts + 1;
+			
+			if (!(velocity < 1))
+				destination = ChaseTarget(velocity);
 		}
 	}
 	else
@@ -166,7 +173,7 @@ bool TSimpleBrain::CanReach(TCoordinates point) const
 }
 TCoordinates TSimpleBrain::GetPositionNearTarget(bool needsCorrection,
 	bool& isAnyEmpty, unsigned int attempts) const
-{ // TODO: ! implement.
+{ // TODO: does it have to be so ugly?
 	assert(!Target.IsEmpty() && "Target must be set.");
 	assert(CanReach(Target->GetPosition()) &&
 		"Can be called only when target is reachable.");
@@ -208,6 +215,107 @@ TCoordinates TSimpleBrain::GetPositionNearTarget(bool needsCorrection,
 	return Destination;
 }
 
+TCoordinates TSimpleBrain::ChaseTarget(int adjustedVelocity)
+{
+	unsigned int velocity = adjustedVelocity;
+	TCoordinates position = Position;
+	TCoordinates target = Target->GetPosition();
+	TCoordinates destination = Position;
+
+	destination = AlignWithX(position, target, velocity);
+	destination = AlignWithY(destination, target, velocity);
+	return destination;
+}
+
+TCoordinates TSimpleBrain::AlignWithX(const TCoordinates& position,
+	const TCoordinates& target, unsigned int& velocity) const
+{
+	unsigned int xDifference = 0;
+
+	if (target.X > position.X)
+	{ // Target to the right.
+		xDifference = target.X - position.X;
+
+		if (xDifference > velocity)
+		{ // Can't align with X, move horizontally to the right.
+			unsigned int savedVelocity = velocity;
+			velocity = 0;
+			return position + TCoordinates({ savedVelocity, 0 });
+		}
+		else
+		{ // Can align with X.
+			velocity -= xDifference;
+			return position + TCoordinates({ xDifference, 0 });
+		}
+	}
+	else if (target.X < position.X)
+	{ // Target to the left.
+		xDifference = position.X - target.X;
+		
+		if (xDifference > velocity)
+		{ // Can't align with X, move horizontally to the left.
+			unsigned int savedVelocity = velocity;
+			velocity = 0;
+			return position - TCoordinates({ savedVelocity, 0 });
+		}
+		else
+		{ // Can align with X.
+			velocity -= xDifference;
+			return position - TCoordinates({ xDifference, 0 });
+		}
+	}
+	else
+	{ // position.X == target.X
+		return position;
+	}
+}
+
+// TODO: implement.
+TCoordinates TSimpleBrain::AlignWithY(const TCoordinates& position,
+	const TCoordinates& target, unsigned int& velocity) const
+{ 
+	if (velocity == 0)
+		return position;
+
+	unsigned int yDifference = 0;
+
+	if (target.Y > position.Y)
+	{ // Target above.
+		yDifference = target.Y - position.Y;
+
+		if (yDifference > velocity)
+		{ // Can't align with Y, move up.
+			unsigned int savedVelocity = velocity;
+			velocity = 0;
+			return position + TCoordinates({ 0, savedVelocity });
+		}
+		else
+		{ // Can align with Y.
+			velocity -= yDifference;
+			return position + TCoordinates({ 0, yDifference });
+		}
+	}
+	else if (target.Y < position.Y)
+	{ // Target to the left.
+		yDifference = position.Y - target.Y;
+
+		if (yDifference > velocity)
+		{ // Can't align with Y, move down.
+			unsigned int savedVelocity = velocity;
+			velocity = 0;
+			return position - TCoordinates({ 0, savedVelocity });
+		}
+		else
+		{ // Can align with Y.
+			velocity -= yDifference;
+			return position - TCoordinates({ 0, yDifference });
+		}
+	}
+	else
+	{ // position.Y == target.Y
+		return position;
+	}
+}
 
 void TPirate::debug_IntroduceYourself() const
 {

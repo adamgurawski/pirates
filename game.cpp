@@ -41,21 +41,18 @@ bool TGame::Run()
 	return true;
 }
 
-/* 1. Check whether civilians see the pirate.
-	 2. Move the civilians.	
-	 3. If one can get out of map, acknowledge it.
-	 4. Check whether pirate can find a target (if doesn't already have one).
-	 5. Move the pirate.
-	 6. Attack the target if possible, acknowledge if destroyed.*/
-// TODO: implement RunTurn.
+// TODO: should it ever return false?
 bool TGame::RunTurn()
 {
-	//Map.debug_PrintMap();
 	// Change ships' destination if they are in danger (get to the closest border).
 	LookForPirates();
+	// Move all civilians. If some can escape, remove it from the game.
 	MoveCivilians();
+	// Check if pirate can spot any civilians.
 	LookForCivilians();
+	// Move the pirate using its own brain (ask for desired destination).
 	MovePirate();
+	// If target is in range, try to attack.
 	AttackTarget();
 
 	return true;
@@ -89,14 +86,13 @@ void TGame::CreateShip(const TShipInfo& shipInfo)
 	// If new ship is the fastest, update max velocity.
 	CorrectMaxVelocity(shipInfo.Velocity);
 
-	// Add ship to list.
+	// Add ship to ship container.
 	Ships.push_back(std::move(ship));
 
 	// Place added ship on a map.
 	const IShip* addedShip = Ships.back().get();
 	Map.PlaceOnMap(addedShip->GetPosition(), addedShip);
 
-	// TODO: Debug.
 	// addedShip->debug_IntroduceYourself();
 }
 
@@ -191,7 +187,7 @@ void TGame::MovePirate()
 	{
 		++attempts;
 		destination = Pirate.GetDesiredDestination(needsCorrection, attempts);
-		needsCorrection = Map.IsEmpty(destination) ? false : true;
+		needsCorrection = !Map.IsEmpty(destination);
 	} while (needsCorrection && attempts < 4);
 	
 	TCoordinates positionBeforeMove = Pirate.GetPosition();
@@ -235,8 +231,11 @@ void TGame::LookForCivilians()
 		for (const TShipPtr& civilian : Ships)
 		{
 			TCoordinates targetPosition = civilian->GetPosition();
-			if (IsInRange(Pirate.GetPosition(), Pirate.GetRangeOfView(), targetPosition) &&
-				!civilian->WasAttacked())
+			TCoordinates piratePosition = Pirate.GetPosition();
+			float visibility = Pirate.GetRangeOfView();
+			bool wasNotAttacked = !civilian->WasAttacked();
+
+			if (IsInRange(piratePosition, visibility, targetPosition) && wasNotAttacked)
 			{
 				Pirate.ChangeTarget(civilian.get());
 				break;
@@ -327,8 +326,9 @@ void TGame::AttackTarget()
 
 	TCoordinates piratePosition = Pirate.GetPosition();
 	TCoordinates targetPosition = Pirate.GetTarget()->GetPosition();
+
 	if (IsInRange(piratePosition, 1, targetPosition))
-	{ // If target is next to pirate, perform an attack.
+	{ // If the pirate is next to the target, carry out an attack.
 		int roll = std::rand() % 100;
 		const IShip* target = Pirate.GetTarget();
 

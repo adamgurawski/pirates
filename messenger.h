@@ -26,7 +26,7 @@ public:
 	void OnEnd(unsigned int attempts, unsigned int successfulAttempts) const;
 
 	// Verbose:
-
+	// Print info about movement of a ship (pirate/civilian).
 	void OnMove(const IShip* ship, const TCoordinates& lastPosition, 
 		bool isPirate = false) const;
 

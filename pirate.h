@@ -66,7 +66,15 @@ private:
 	// Return isAnyEmpty = false when there is no available coordinates 
 	// of this sort.
 	TCoordinates GetPositionNearTarget(bool needsCorrection, 
-		bool& isAnyEmpty, unsigned int attempts)	const;
+		bool& isAnyEmpty, unsigned int attempts) const;
+	// Align with target's X, then follow along Y.
+	TCoordinates ChaseTarget(int adjustedVelocity);
+	// TODO: comment.
+	TCoordinates AlignWithX(const TCoordinates& position,
+		const TCoordinates& target, unsigned int& velocity) const;
+	// TODO: comment.
+	TCoordinates AlignWithY(const TCoordinates& position,
+		const TCoordinates& target, unsigned int& velocity) const;
 	
 private:
 	unsigned int MaxX;

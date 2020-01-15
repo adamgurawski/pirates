@@ -63,29 +63,15 @@ public:
 	virtual ~AShip() = default;
 
 	virtual std::string GetName() const override
-	{
-		return Name;
-	}
-
+		{ return Name; }
 	virtual float GetVelocity() const override
-	{
-		return Velocity;
-	}
-
+		{ return Velocity; }
 	virtual float GetRangeOfView() const override
-	{
-		return Visibility;
-	}
-
+	 { return Visibility; }
 	virtual TCoordinates GetPosition() const override
-	{
-		return Position;
-	}
-
+		{ return Position; }
 	virtual void Move(const TCoordinates& coordinates) override
-	{
-		Position = coordinates;
-	}
+		{ Position = coordinates; }
 
 	virtual void debug_IntroduceYourself() const override
 	{
@@ -171,7 +157,7 @@ protected:
 
 
 protected:
-	// Chance to be attacked (percents?).
+	// Chance to be successfully attacked (value between 0 and 1).
 	const float Vulnerability;
 
 	/* Set to true when the ship was unsuccessfully attacked.
@@ -179,11 +165,10 @@ protected:
 		 from the map, so there is no need to set Attacked = true in this case. */
 	bool Attacked;
 
-	// True if ship has spotted the pirates and is trying to leave the map.
+	// True if ship has spotted the pirate and is trying to leave the map.
 	bool RunningAway;
 };
 
-/* Vulnerability = 60%. */
 class TBulkCarrier : public ACivilian
 {
 public:
@@ -193,18 +178,15 @@ public:
 	virtual ~TBulkCarrier() = default;
 };
 
-/* Vulnerability = 80%.
-   Tankers transport milions worth of oil, so it's a lucrative target for the pirates.*/
 class TTanker : public ACivilian
 {
 public:
-	TTanker(const std::string& name, float velocity, TCoordinates position, TCoordinates destination);
+	TTanker(const std::string& name, float velocity, TCoordinates position,
+		TCoordinates destination);
 
 	virtual ~TTanker() = default;
 };
 
-/* Vulnerability = 30%.
-   It's hard to get away with attacking passenger ships, so the pirates prefer cargo ships.*/
 class TPassenger : public ACivilian
 {
 public:
