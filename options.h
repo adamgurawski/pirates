@@ -7,17 +7,21 @@
 #include <utility>
 #include <set>
 
-/*	Required arguments :
-	(default) program name
-		- s (ship)
-		ship name
-		ship speed
-		ship time
-		-m (map size)
-		length
-		width
-		-t (time)
-		time in "time units" */
+/*	Required arguments:
+	0:	(default) program name
+	1:	- s (ship)
+	2:	ship's name
+	3:	ship's speed
+	4:	ship's time to generation
+	5:	-m (map size)
+	6:	map width
+	7:	map height
+	8:	-t (time)
+	9:	time in "time units"
+	10: (optional) -g (graphical representation of current situation on map)
+	11: (optional) -v (verbose) used to print messages related to changing
+			ships' position, if not passed, only "relevant" actions get printed, f.e.
+			ship left the map, ship got successfully/unsuccessfully attacked. */
 
 struct TShipInfo
 {
@@ -46,52 +50,42 @@ public:
 	TOptions(int argc, const char** argv);
 
 	unsigned int GetSimulationTime() const
-	{
-		return SimulationTime;
-	}
-
+		{ return SimulationTime; }
 	unsigned int GetMapWidth() const
-	{
-		return MapWidth;
-	}
-
+		{ return MapWidth; }
 	unsigned int GetMapHeight() const
-	{
-		return MapHeight;
-	}
+		{ return MapHeight; }
+	bool IsGraphical() const
+		{	return Graphical; }
+	bool IsVerbose() const
+		{ return Verbose; }
+	bool IsValid() const
+		{ return ValidParams; }
 
 	TShipInfoSet&& StealShipInfo()
 	{
 		return std::move(Ships);
 	}
 
-	bool IsValid() const
-	{
-		return ValidParams;
-	}
-
 private:
-	// Input validation:
-
-	// Checks if exactly one -t/-m is present and minimum of one -s.
-	// Verifies that one (-t), two (-m), or three (-s) next arguments
+	// Check if exactly one -t/-m is present and minimum of one -s.
+	// Verify that one (-t), two (-m), or three (-s) next arguments
 	// are not switches.
 	bool PreValidate() const;
 
-	/* Validates parameters. When wrong parameters (wrong values, wrong order) were passed or
-		"-h" present, returns false. Otherwise returns true. */
+	/* Validate parameters. When wrong parameters (wrong values, wrong order) were passed or
+		"-h" present, return false. Otherwise return true. */
 	bool ValidateInput();
-
+	// Tell if idx parameter is not a switch.
 	bool IsNotSwitch(int idx) const;
-
-	// Takes first ship's name's idx as parameter, add its info to the vector.
+	// Take first ship's name's idx as parameter, add its info to the vector.
 	void HandleShip(int& idx);
+	
+	void SetMapDimensions(int& widthIdx);
 
-	void HandleMapDimensions(int& widthIdx);
+	void SetSimulationTime(int& timeIdx);
 
-	void HandleSimulationTime(int& timeIdx);
-
-	// Errors.
+	// Errors. Used to describe exceptions thrown by f.e. std::stoi the human way.
 	bool InvalidFormatOfInput() const;
 	bool InvalidNumberOfArguments() const;
 
@@ -109,6 +103,10 @@ private:
 	unsigned int SimulationTime;
 	unsigned int MapWidth;
 	unsigned int MapHeight;
+
+	// Display options.
+	bool Graphical;
+	bool Verbose;
 
 	// Based on data stored in this vector, the ships will be created by TGame.
 	// It's a multiset in order to allow sorted inserting.

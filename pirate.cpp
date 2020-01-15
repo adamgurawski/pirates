@@ -5,8 +5,10 @@
 
 namespace
 {
-#define PIRATES_VISIBILITY 5.0f
-#define PIRATES_INITIAL_VELOCITY 1.0f	
+// If one wishes to change the name, shall do it in "map.cpp" as well.
+#define PIRATE_NAME "The Green Oyster"
+#define PIRATE_VISIBILITY 7.0f
+#define PIRATE_INITIAL_VELOCITY 1.0f	
 }
 
 TTargetWrapper& TTargetWrapper::operator=(const IShip* ship)
@@ -28,7 +30,7 @@ TTargetWrapper& TTargetWrapper::operator=(TTargetWrapper&& rhs)
 }
 
 TPirate::TPirate(TCoordinates position) :
-	AShip("The Green Oyster", PIRATES_INITIAL_VELOCITY, PIRATES_VISIBILITY, position,
+	AShip(PIRATE_NAME, PIRATE_INITIAL_VELOCITY, PIRATE_VISIBILITY, position,
 	{ 0,0 }),
 	Target(nullptr)
 {

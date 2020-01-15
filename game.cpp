@@ -8,7 +8,8 @@
 TGame::TGame(options::TOptions& options)
 	: Map({ options.GetMapWidth(), options.GetMapHeight() }),
 	SimDuration(options.GetSimulationTime()), CurrentTime(0), Attempts(0),
-	SuccessfulAttempts(0), CurrentMaxVelocity(0)
+	SuccessfulAttempts(0), CurrentMaxVelocity(0), Messenger(options.IsGraphical(),
+		options.IsVerbose())
 {
 	// Srand must be called before Map.RollPiratesPosition.
 	srand(static_cast<unsigned int>(time(NULL)));
@@ -30,10 +31,9 @@ bool TGame::Run()
 { 
 	for (; CurrentTime < SimDuration; ++CurrentTime)
 	{
-		// TODO: make messenger handle this.
-		std::cout << "Turn: " << CurrentTime + 1 << std::endl;
 		// Generate ships which TimeToGeneration equals CurrentTime.
 		GenerateShips();
+		Messenger.OnTurn(CurrentTime + 1, Map);
 		RunTurn();
 	}
 
@@ -177,11 +177,10 @@ void TGame::MoveCivilian(TShipIt& it, bool& removed)
 
 		Map.Move(ship.get(), target);
 		ship->Move(target);
+		Messenger.OnMove(ship.get(), position, false);
 	}
 }
 
-/* 1. Check if it's possible to go to desired destination (empty coordinates).
-*/
 void TGame::MovePirate()
 {
 	bool needsCorrection = false;
@@ -195,8 +194,10 @@ void TGame::MovePirate()
 		needsCorrection = Map.IsEmpty(destination) ? false : true;
 	} while (needsCorrection && attempts < 4);
 	
+	TCoordinates positionBeforeMove = Pirate.GetPosition();
 	Map.Move(&Pirate, destination);
 	Pirate.Move(destination);
+	Messenger.OnMove(&Pirate, positionBeforeMove, true);
 }
 
 void TGame::MoveCivilians()
@@ -234,7 +235,7 @@ void TGame::LookForCivilians()
 		for (const TShipPtr& civilian : Ships)
 		{
 			TCoordinates targetPosition = civilian->GetPosition();
-			if (Map.IsInRange(Pirate.GetPosition(), Pirate.GetRangeOfView(), targetPosition) &&
+			if (IsInRange(Pirate.GetPosition(), Pirate.GetRangeOfView(), targetPosition) &&
 				!civilian->WasAttacked())
 			{
 				Pirate.ChangeTarget(civilian.get());
@@ -251,7 +252,7 @@ bool TGame::SeesPirate(const TShipPtr& ship) const
 	TCoordinates shipPosition = ship->GetPosition();
 	float visibility = ship->GetRangeOfView();
 
-	return (Map.IsInRange(shipPosition, visibility, piratePosition));
+	return (IsInRange(shipPosition, visibility, piratePosition));
 }
 
 bool TGame::CanLeave(const TShipPtr& ship) const
@@ -297,6 +298,20 @@ bool TGame::CanLeave(const TShipPtr& ship) const
 	}
 }
 
+bool TGame::IsInRange(const TCoordinates& center, float visibility,
+	const TCoordinates& target) const
+{
+	int x = std::abs(static_cast<int>(target.X - center.X));
+	int y = std::abs(static_cast<int>(target.Y - center.Y));
+
+	float powX = std::pow(x, 2);
+	float powY = std::pow(y, 2);
+	float powDistance = powX + powY;
+	float distance = std::sqrt(powDistance);
+
+	return !(distance > visibility);
+}
+
 bool TGame::Remove(TShipIt& it)
 {
 	TShipPtr& ship = *it;
@@ -312,7 +327,7 @@ void TGame::AttackTarget()
 
 	TCoordinates piratePosition = Pirate.GetPosition();
 	TCoordinates targetPosition = Pirate.GetTarget()->GetPosition();
-	if (Map.IsInRange(piratePosition, 1, targetPosition))
+	if (IsInRange(piratePosition, 1, targetPosition))
 	{ // If target is next to pirate, perform an attack.
 		int roll = std::rand() % 100;
 		const IShip* target = Pirate.GetTarget();

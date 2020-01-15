@@ -26,7 +26,7 @@ public:
 	TGame(options::TOptions& options);
 	~TGame() = default;
 	
-	// Run the game, call RunTurn every tick and update time.
+	// Run the game, call RunTurn every time unit and update time.
 	bool Run();
 
 	bool RunTurn();
@@ -37,7 +37,7 @@ private:
 	// Create ships which time of generation equals CurrentTime and erase their info
 	// from ship info set. Uses CreateShip for every ship.
 	void GenerateShips();
-	// Add velocity to destination.
+	// Add velocity to position to get destination for this move.
 	TCoordinates SetTemporaryDestination(int velocity, 
 		TCoordinates position, TCoordinates destination) const;
 	// Change ships position and change its coordinates on map.
@@ -58,13 +58,16 @@ private:
 	bool SeesPirate(const TShipPtr& ship) const;
 	// Return true if ship's velocity is sufficient to leave the map in this turn.
 	bool CanLeave(const TShipPtr& ship) const;
+	// Check whether target is seen by ship which position is center.
+	bool IsInRange(const TCoordinates& center, float visibility,
+		const TCoordinates& target) const;
 	// Remove ship from ship list and from the map.
 	// Returns iterator to next valid element if ship was deleted (otherwise iterator points to
 	// the current element).
 	bool Remove(TShipIt& it);
 	// Try to attack the target (if any exists).
 	void AttackTarget();
-
+	// Set civilian destination as the opposite side of the map.
 	TCoordinates SetCivilianStartingDestination(TCoordinates position) const;
 	// Save max velocity of the fastest ship and modify pirate's velocity.
 	void CorrectMaxVelocity(float newVelocity);

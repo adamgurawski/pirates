@@ -1,15 +1,14 @@
 #include "ship.h"
 
-// TODO: (debug) temporary doubled vision
 namespace
 {
-#define TANKERS_VISIBILITY 8.0f
-#define PASSENGERS_VISIBILITY 10.0f
-#define BULKCARRIERS_VISIBILITY 6.0f
+#define BULKCARRIERS_VISIBILITY 5.0f
+#define TANKERS_VISIBILITY 6.0f
+#define PASSENGERS_VISIBILITY 8.0f
 
+#define BULKCARRIERS_VULNERABILITY 0.6f
 #define TANKERS_VULNERABILITY 0.8f
 #define PASSENGERS_VULNERABILITY 0.3f
-#define BULKCARRIERS_VULNERABILITY 0.6f
 }
 
 bool ACivilian::WasAttacked() const

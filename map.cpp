@@ -4,6 +4,12 @@
 #include <random> // rand()
 #include <cassert> // assert
 
+namespace
+{
+// If one wishes to change the name, shall do it in "pirate.cpp" as well.
+#define PIRATE_NAME "The Green Oyster"
+}
+
 bool TCoordinatesComparer::operator()(TCoordinates lhs, TCoordinates rhs) const
 {
 	if (lhs.X == rhs.X)
@@ -64,6 +70,39 @@ TCoordinates TMap::RollPiratesPosition() const
 		return RollPiratesPosition();
 	else
 		return result;
+}
+
+void TMap::Display() const
+{
+	for (int y = Height - 1; y >= 0; y--)
+	{ // Print map from top to down (descending Y).
+		std::cout << std::setw(2) << y << " ";
+
+		for (unsigned int x = 0; x < Width; ++x)
+		{
+			if (IsEmpty({ x, static_cast<unsigned int>(y) }))
+				std::cout << " . ";
+			else
+			{
+				if (Map.at({ x, static_cast<unsigned int>(y) })->GetName() == PIRATE_NAME)
+				{ // Print X for the pirate and O for civilians.
+					std::cout << " X ";
+				}
+				else
+					std::cout << " O ";
+			}
+		}
+		std::cout << std::endl;
+	}
+	// Indentation for double-digit max coordinates.
+	std::cout << "   ";
+
+	for (unsigned int j = 0; j < Width; j++)
+	{ // Print X coordinates.
+		std::cout << std::setw(2) << j << " ";
+	}
+
+	std::cout << std::endl;
 }
 
 bool TMap::PlaceOnMap(TCoordinates coordinates, const IShip* ship)
@@ -142,20 +181,6 @@ TCoordinates TMap::CalculateClosestExit(TCoordinates coordinates) const
 		assert(false && "Invalid route.");
 		throw std::logic_error("Something went wrong in calculating closest exit.");
 	}
-}
-
-bool TMap::IsInRange(const TCoordinates& center, float visibility, 
-	const TCoordinates& target) const
-{
-	int x = std::abs(static_cast<int>(target.X - center.X));
-	int y = std::abs(static_cast<int>(target.Y - center.Y));
-
-	float powX = std::pow(x, 2);
-	float powY = std::pow(y, 2);
-	float powDistance = powX + powY;
-	float distance = std::sqrt(powDistance);
-
-	return !(distance > visibility);
 }
 
 void TMap::Move(const IShip* ship, const TCoordinates& target)

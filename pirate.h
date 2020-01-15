@@ -115,10 +115,6 @@ public:
 	void SetMapBorders(unsigned int maxX, unsigned int maxY);
 
 	virtual void debug_IntroduceYourself() const override;
-	virtual bool debug_IsPirate() const override
-	{
-		return true;
-	}
 
 private:
 	// Note that the target can be nullptr (of course not the wrapper itself).

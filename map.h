@@ -20,59 +20,24 @@ public:
 	}
 
 	unsigned int GetWidth() const
-	{
-		return Width;
-	}
-
+		{ return Width; }
 	unsigned int GetHeight() const
-	{
-		return Height;
-	}
+		{ return Height; }
 
+	// Roll position at map's border.
 	TCoordinates RollCivilianPosition() const;
-
+	// Roll position anywhere.
 	TCoordinates RollPiratesPosition() const;
-
-	void debug_PrintMap() const
-	{
-		for (int y = Height - 1; y >= 0; y--)
-		{
-			std::cout << std::setw(2) << y << " ";
-			for (unsigned int x = 0; x < Width; ++x)
-			{
-				if (IsEmpty({ x, static_cast<unsigned int>(y) }))
-					std::cout << " . ";
-				else
-				{
-					if (Map.at({ x, static_cast<unsigned int>(y) })->debug_IsPirate())
-						std::cout << " X ";
-					else
-						std::cout << " O ";
-				}
-			}
-			std::cout << std::endl;
-		}
-		std::cout << "   ";
-		for (unsigned int j = 0; j < Width; j++)
-			std::cout << std::setw(2) << j << " ";
-		std::cout << std::endl;
-	}
-
-	// Returns true if new ship was added, false when the field was not nullptr.
+	// Print map (called when -g was passed).
+	void Display() const;
+	// Return true if new ship was added, false when the field was not nullptr.
 	bool PlaceOnMap(TCoordinates coordinates, const IShip* ship);
-
-	// Returns the closest point to leave the map.
+	// Return the closest point to leave the map.
 	TCoordinates CalculateClosestExit(TCoordinates coordinates) const;
 
-	// Check whether target is seen by ship which position is center.
-	bool IsInRange(const TCoordinates& center, float visibility, 
-		const TCoordinates& target) const;
-
 	void Move(const IShip* ship, const TCoordinates& target);
-
 	// Nullify coordinates (ship destroyed / changed position).
 	void Remove(const TCoordinates& coordinates);
-
 	// Tell if there is no ship on these coordinates.
 	bool IsEmpty(TCoordinates coordinates) const;
 

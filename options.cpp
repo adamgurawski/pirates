@@ -8,7 +8,7 @@
 #include <vector>
 
 options::TOptions::TOptions(int argc, const char** argv) : ArgCount(argc), Args(argv),
-	ValidParams(true)
+	ValidParams(true), Graphical(false), Verbose(false)
 {
 	if (!ValidateInput())
 	{ 
@@ -33,11 +33,15 @@ void options::TOptions::DisplayHelp() const
 { 
 	std::cout << "Help for Pirates:\n" <<
 		"In order to run simulation, pass these arguments in random order:\n" <<
-		"-t (int) time_of_simulation\n" <<
-		"-m (int int) map_width map_height\n" <<
-		"-s (string float int) ship_name ship_velocity time_to_generation.\n" <<
-		"Note that all of these switches are obligatory. There can't be more than one -t and -m " <<
-		"and there can be multiple -s (each representing one ship)." << std::endl;
+		"-t followed by (int) time_of_simulation\n" <<
+		"-m followed by (int) map_width (int) map_height\n" <<
+		"-s followed by (string) ship_name (float) ship_velocity (int) time_to_generation.\n" <<
+		"Note that all of mentioned arguments are obligatory. There can't be more than one -t and -m " <<
+		"and there can be multiple -s (each representing one ship).\n" << 
+		"Optional switches:\n" <<
+		"-g <graphical> display map on every turn\n" <<
+		"-v <verbose> print every event happening in the game (f.e. ship changed position)" << 
+		", by default only ship's generation, leaving the map or being attacked is printed." << std::endl;
 }
 
 bool options::TOptions::PreValidate() const
@@ -82,8 +86,10 @@ bool options::TOptions::PreValidate() const
 bool options::TOptions::ValidateInput()
 {
 	if (ArgCount < RequiredArgs)
-		if (ArgCount == 2 && !strcmp(Args[1], "-h"))
+		if (ArgCount == 1 || ArgCount == 2 && !strcmp(Args[1], "-h"))
+		{ // No args or only -h passed. Display help without errors.
 			return false;
+		}
 		else
 			return InvalidNumberOfArguments();
 
@@ -106,11 +112,21 @@ bool options::TOptions::ValidateInput()
 			}
 			else if (parameter == "-m")
 			{ // Map dimenions.
-				HandleMapDimensions(++i);
+				SetMapDimensions(++i);
 			}
 			else if (parameter == "-t")
 			{ // Simulation time.
-				HandleSimulationTime(++i);
+				SetSimulationTime(++i);
+			}
+			else if (parameter == "-v")
+			{
+				++i;
+				Verbose = true;
+			}
+			else if (parameter == "-g")
+			{
+				++i;
+				Graphical = true;
 			}
 			else
 			{ 
@@ -119,7 +135,8 @@ bool options::TOptions::ValidateInput()
 		}
 	}
 	catch (std::invalid_argument)
-	{ // std::stoi failed or wrong order of parameters (f.e. 4 params after -s switch)
+	{ // std::stoi failed or wrong order of parameters (f.e. 4 non-switch params
+		// after -s switch)
 		return InvalidFormatOfInput();
 	}
 	catch (std::out_of_range)
@@ -127,7 +144,7 @@ bool options::TOptions::ValidateInput()
 		return InvalidFormatOfInput();
 	}
 	catch (std::logic_error logic)
-	{ // time/speed negative
+	{ // Time/speed negative.
 		std::cerr << logic.what() << std::endl;
 		return false;
 	}
@@ -139,11 +156,8 @@ bool options::TOptions::IsNotSwitch(int idx) const
 {
 	std::string arg = Args[idx];
 
-	if (arg == "-s")
-		return false;
-	else if (arg == "-m")
-		return false;
-	else if (arg == "-t")
+	if (arg == "-s" || arg == "-m" || arg == "-t" || arg == "-v" || arg == "-g" ||
+		arg == "-h")
 		return false;
 	else
 		return true;
@@ -173,7 +187,7 @@ void options::TOptions::HandleShip(int& idx)
 	}
 }
 
-void options::TOptions::HandleMapDimensions(int& widthIdx)
+void options::TOptions::SetMapDimensions(int& widthIdx)
 {
 	int width = std::stoi(Args[widthIdx++]);
 	int height = std::stoi(Args[widthIdx++]);
@@ -185,7 +199,7 @@ void options::TOptions::HandleMapDimensions(int& widthIdx)
 	MapHeight = height;
 }
 
-void options::TOptions::HandleSimulationTime(int& timeIdx)
+void options::TOptions::SetSimulationTime(int& timeIdx)
 {
 	int time = std::stoi(Args[timeIdx++]);
 
