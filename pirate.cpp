@@ -1,6 +1,7 @@
 #include "pirate.h"
 
 #include <cassert>
+#include <cmath>
 #include <vector>
 
 namespace
@@ -90,7 +91,7 @@ void TPirate::SetMapBorders(unsigned int maxX, unsigned int maxY)
 
 TSimpleBrain::TSimpleBrain(TCoordinates& position,
 	TCoordinates& destination, float& velocity, TTargetWrapper& target) : 
-	MaxX(0), MaxY(0),	LongTermDestination({ 0,0 }), Position(position), 
+	MaxX(0), MaxY(0),	GoingRight(true), GoingDown(true), Position(position), 
 	Destination(destination), Velocity(velocity), Target(target)
 {
 }
@@ -132,11 +133,14 @@ TCoordinates TSimpleBrain::GetDesiredDestination(bool needsCorrection,
 		}
 	}
 	else
-	{ // TODO: Zig-zag.
+	{ 
+		int velocity = std::trunc(Velocity) - attempts + 1;
 
+		if (!(velocity < 1))
+			destination = ZigZag(velocity);
 	}
 
-	// Temporary until implemented.
+	// TODO: ?? Temporary until implemented.
 	Destination = destination;
 	return Destination;
 }
@@ -151,11 +155,12 @@ TSimpleBrain& TSimpleBrain::operator=(TSimpleBrain&& rhs)
 {
 	MaxX = std::move(rhs.MaxX);
 	MaxY = std::move(rhs.MaxY);
+	GoingRight = std::move(GoingRight);
+	GoingDown = std::move(GoingDown);
 	Velocity = std::move(rhs.Velocity);
 	Position = std::move(rhs.Position);
 	Destination = std::move(rhs.Destination);
 	Target = std::move(rhs.Target);
-	LongTermDestination = std::move(LongTermDestination);
 
 	return *this;
 }
@@ -216,7 +221,7 @@ TCoordinates TSimpleBrain::GetPositionNearTarget(bool needsCorrection,
 	return Destination;
 }
 
-TCoordinates TSimpleBrain::ChaseTarget(int adjustedVelocity)
+TCoordinates TSimpleBrain::ChaseTarget(int adjustedVelocity) const
 {
 	unsigned int velocity = adjustedVelocity;
 	TCoordinates position = Position;
@@ -240,41 +245,40 @@ TCoordinates TSimpleBrain::AlignWithX(const TCoordinates& position,
 		if (xDifference > velocity)
 		{ // Can't align with X, move horizontally to the right.
 			unsigned int savedVelocity = velocity;
-			velocity = 0;
-			return position + TCoordinates({ savedVelocity, 0 });
+velocity = 0;
+return position + TCoordinates({ savedVelocity, 0 });
 		}
 		else
 		{ // Can align with X.
-			velocity -= xDifference;
-			return position + TCoordinates({ xDifference, 0 });
+		velocity -= xDifference;
+		return position + TCoordinates({ xDifference, 0 });
 		}
 	}
 	else if (target.X < position.X)
 	{ // Target to the left.
-		xDifference = position.X - target.X;
-		
-		if (xDifference > velocity)
-		{ // Can't align with X, move horizontally to the left.
-			unsigned int savedVelocity = velocity;
-			velocity = 0;
-			return position - TCoordinates({ savedVelocity, 0 });
-		}
-		else
-		{ // Can align with X.
-			velocity -= xDifference;
-			return position - TCoordinates({ xDifference, 0 });
-		}
+	xDifference = position.X - target.X;
+
+	if (xDifference > velocity)
+	{ // Can't align with X, move horizontally to the left.
+		unsigned int savedVelocity = velocity;
+		velocity = 0;
+		return position - TCoordinates({ savedVelocity, 0 });
+	}
+	else
+	{ // Can align with X.
+		velocity -= xDifference;
+		return position - TCoordinates({ xDifference, 0 });
+	}
 	}
 	else
 	{ // position.X == target.X
-		return position;
+	return position;
 	}
 }
 
-// TODO: implement.
 TCoordinates TSimpleBrain::AlignWithY(const TCoordinates& position,
 	const TCoordinates& target, unsigned int& velocity) const
-{ 
+{
 	if (velocity == 0)
 		return position;
 
@@ -316,6 +320,46 @@ TCoordinates TSimpleBrain::AlignWithY(const TCoordinates& position,
 	{ // position.Y == target.Y
 		return position;
 	}
+}
+
+TCoordinates TSimpleBrain::ZigZag(int adjustedVelocity)
+{
+	TCoordinates destination = Position;
+	int x = Position.X;
+	int y = Position.Y;
+	int maxX = MaxX;
+	int maxY = MaxY;
+
+	int halfVelocity = adjustedVelocity / 2;
+	if (halfVelocity < 1)
+		return Position;
+
+	if (x == maxX || (x + halfVelocity > maxX))
+	{ // Right inaccessible.
+		GoingRight = false;
+	}
+	if (x == 0 || x - halfVelocity < 0)
+	{ // Left inaccessible.
+		GoingRight = true;
+	}
+	if (y == maxY || y + halfVelocity > maxY)
+	{ // Up inaccessible.
+		GoingDown = true;
+	}
+	if (y == 0 || y - halfVelocity < 0)
+	{ // Down inaccessible.
+		GoingDown = false;
+	}
+
+	destination = GoingRight ?
+		destination + TCoordinates({ static_cast<unsigned>(halfVelocity), 0u }) :
+		destination - TCoordinates({ static_cast<unsigned>(halfVelocity), 0u });
+
+	destination = GoingDown ?
+		destination - TCoordinates({ 0u, static_cast<unsigned>(halfVelocity) }) :
+		destination + TCoordinates({ 0u, static_cast<unsigned>(halfVelocity) });
+
+	return destination;
 }
 
 void TPirate::debug_IntroduceYourself() const

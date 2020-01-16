@@ -123,7 +123,6 @@ TCoordinates TMap::CalculateClosestExit(TCoordinates coordinates) const
 { // TODO: make it prettier.
 	int maxX = Width - 1;
 	int maxY = Height - 1;
-
 	int x = coordinates.X;
 	int y = coordinates.Y;
 
@@ -137,13 +136,7 @@ TCoordinates TMap::CalculateClosestExit(TCoordinates coordinates) const
 	};
 
 	TRoute route = TRoute::INVALID;
-
-	int smallestDistance;
-
-	if (maxY > maxX)
-		smallestDistance = maxY;
-	else
-		smallestDistance = maxX;
+	int smallestDistance = (maxY > maxX) ? maxY : maxX;
 
 	// TODO: verify that there are no errors (f.e. when current coordinates are in the middle).
 	if (maxY - y < smallestDistance)

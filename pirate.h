@@ -68,26 +68,30 @@ private:
 	TCoordinates GetPositionNearTarget(bool needsCorrection, 
 		bool& isAnyEmpty, unsigned int attempts) const;
 	// Align with target's X, then follow along Y.
-	TCoordinates ChaseTarget(int adjustedVelocity);
+	TCoordinates ChaseTarget(int adjustedVelocity) const;
 	// TODO: comment.
 	TCoordinates AlignWithX(const TCoordinates& position,
 		const TCoordinates& target, unsigned int& velocity) const;
 	// TODO: comment.
 	TCoordinates AlignWithY(const TCoordinates& position,
 		const TCoordinates& target, unsigned int& velocity) const;
+	// TODO: comment
+	TCoordinates ZigZag(int adjustedVelocity);
 	
 private:
 	unsigned int MaxX;
 	unsigned int MaxY;
 	
+	// Used by zig-zag mechanism, can be going left (false) or right (true).
+	bool GoingRight;
+	// Used by zig-zag mechanism, can be going up (false) or down (true).
+	bool GoingDown;
+
 	// References to TPirate's members.
 	float& Velocity;
 	TCoordinates& Position;
 	TCoordinates& Destination;
 	TTargetWrapper& Target;
-	
-	// TODO: ! is it legacy?
-	TCoordinates LongTermDestination;
 };
 
 class TPirate final : public AShip<IShip>

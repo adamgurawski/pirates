@@ -16,7 +16,7 @@ TGame::TGame(options::TOptions& options)
 
 	// Create pirate and place it on the map.
 	Pirate = std::move(TPirate(Map.RollPiratesPosition()));
-	Pirate.SetMapBorders(Map.GetWidth(), Map.GetHeight());
+	Pirate.SetMapBorders(Map.GetWidth() - 1, Map.GetHeight() - 1);
 	Map.PlaceOnMap(Pirate.GetPosition(), static_cast<const IShip*>(&Pirate));
 
 	// Will not be using options anymore, can steal ShipInfo to prevent unnecessary copying.
@@ -188,7 +188,14 @@ void TGame::MovePirate()
 	{
 		++attempts;
 		destination = Pirate.GetDesiredDestination(needsCorrection, attempts);
-		needsCorrection = !Map.IsEmpty(destination);
+		try
+		{
+			needsCorrection = !Map.IsEmpty(destination);
+		}
+		catch (std::out_of_range)
+		{
+			std::cerr << "Error: Map index out of range!" << std::endl;
+		}
 	} while (needsCorrection && attempts < 4);
 	
 	TCoordinates positionBeforeMove = Pirate.GetPosition();
