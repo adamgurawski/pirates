@@ -134,16 +134,16 @@ bool options::TOptions::ValidateInput()
 			}
 		}
 	}
-	catch (std::invalid_argument)
+	catch (const std::invalid_argument&)
 	{ // std::stoi failed or wrong order of parameters (f.e. 4 non-switch params
 		// after -s switch)
 		return InvalidFormatOfInput();
 	}
-	catch (std::out_of_range)
+	catch (const std::out_of_range&)
 	{ // (legacy?) std::vector::at failed.
 		return InvalidFormatOfInput();
 	}
-	catch (std::logic_error logic)
+	catch (const std::logic_error& logic)
 	{ // Time/speed negative.
 		std::cerr << logic.what() << std::endl;
 		return false;
@@ -174,9 +174,9 @@ void options::TOptions::HandleShip(int& idx)
 		int time = std::stoi(Args[idx++]);
 
 		if (velocity <= 0)
-			throw std::logic_error("Velocity value shall be positive.");
+			throw std::logic_error("Error: Velocity value must be positive.");
 		else if (time < 0)
-			throw std::logic_error("Time value cannot be negative.");
+			throw std::logic_error("Error: Time value cannot be negative.");
 
 		TShipInfo ship({ name, velocity, time });
 		Ships.insert(ship);
@@ -192,8 +192,8 @@ void options::TOptions::SetMapDimensions(int& widthIdx)
 	int width = std::stoi(Args[widthIdx++]);
 	int height = std::stoi(Args[widthIdx++]);
 
-	if (width < 0 || height < 0)
-		throw std::logic_error("Map width/height value shall be positive.");
+	if (width <= 0 || height <= 0)
+		throw std::logic_error("Error: Map width/height value must be positive.");
 
 	MapWidth = width;
 	MapHeight = height;
@@ -203,8 +203,8 @@ void options::TOptions::SetSimulationTime(int& timeIdx)
 {
 	int time = std::stoi(Args[timeIdx++]);
 
-	if (time < 0)
-		throw std::logic_error("Time value cannot be negative.");
+	if (time <= 0)
+		throw std::logic_error("Error: Simulation time value must be positive.");
 
 	SimulationTime = time;
 }

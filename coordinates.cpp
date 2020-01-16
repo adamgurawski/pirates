@@ -1,5 +1,16 @@
 #include "coordinates.h"
 
+bool TCoordinatesComparer::operator()(const TCoordinates& lhs,
+	const TCoordinates& rhs) const
+{
+	if (lhs.X == rhs.X)
+		return lhs.Y < rhs.Y;
+	else if (lhs.Y == rhs.Y)
+		return lhs.X < rhs.X;
+	else
+		return (lhs.X < rhs.X);
+}
+
 TCoordinates operator+(const TCoordinates& lhs, const TCoordinates& rhs)
 {
 	TCoordinates result;

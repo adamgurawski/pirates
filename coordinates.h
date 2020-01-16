@@ -11,7 +11,7 @@ struct TCoordinates
 
 struct TCoordinatesComparer
 {
-	bool operator()(TCoordinates lhs, TCoordinates rhs) const;
+	bool operator()(const TCoordinates& lhs, const TCoordinates& rhs) const;
 };
 
 TCoordinates operator+(const TCoordinates& lhs, const TCoordinates& rhs);

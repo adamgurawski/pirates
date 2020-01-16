@@ -29,7 +29,7 @@ public:
 	// Run the game, call RunTurn every time unit and update time.
 	bool Run();
 	// Run one turn.
-	bool RunTurn();
+	void RunTurn();
 
 private:
 	// Create a ship and place it on the map.

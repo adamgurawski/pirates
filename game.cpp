@@ -26,23 +26,29 @@ TGame::TGame(options::TOptions& options)
 	// Pirate.debug_IntroduceYourself();
 }
 
-// TODO: implement Run().
 bool TGame::Run()
 { 
 	for (; CurrentTime < SimDuration; ++CurrentTime)
 	{
-		// Generate ships which TimeToGeneration equals CurrentTime.
-		GenerateShips();
-		Messenger.OnTurn(CurrentTime + 1, Map);
-		RunTurn();
+		try
+		{
+			// Generate ships which TimeToGeneration equals CurrentTime.
+			GenerateShips();
+			Messenger.OnTurn(CurrentTime + 1, Map);
+			RunTurn();
+		}
+		catch (const std::logic_error& logicError)
+		{ 
+			std::cerr << logicError.what() << std::endl;
+			return false;
+		}
 	}
 
 	Messenger.OnEnd(Attempts, SuccessfulAttempts);
 	return true;
 }
 
-// TODO: should it ever return false?
-bool TGame::RunTurn()
+void TGame::RunTurn()
 {
 	// Change ships' destination if they are in danger (get to the closest border).
 	LookForPirates();
@@ -54,12 +60,10 @@ bool TGame::RunTurn()
 	MovePirate();
 	// If target is in range, try to attack.
 	AttackTarget();
-
-	return true;
 }
 
 void TGame::CreateShip(const TShipInfo& shipInfo)
-{ // TODO: throw exception when there is no available space on map?
+{ 
 	TCoordinates startingPosition = Map.RollCivilianPosition();
 	TCoordinates destination = SetCivilianStartingDestination(startingPosition);
 	TShipPtr ship;
@@ -93,6 +97,7 @@ void TGame::CreateShip(const TShipInfo& shipInfo)
 	const IShip* addedShip = Ships.back().get();
 	Map.PlaceOnMap(addedShip->GetPosition(), addedShip);
 
+	// TODO: OnGeneration?
 	// addedShip->debug_IntroduceYourself();
 }
 
@@ -192,9 +197,9 @@ void TGame::MovePirate()
 		{
 			needsCorrection = !Map.IsEmpty(destination);
 		}
-		catch (std::out_of_range)
+		catch (const std::out_of_range&)
 		{
-			std::cerr << "Error: Map index out of range!" << std::endl;
+			std::cerr << "Error: Coordinates out of range!" << std::endl;
 		}
 	} while (needsCorrection && attempts < 4);
 	

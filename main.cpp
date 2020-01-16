@@ -4,20 +4,29 @@
 
 #include <iostream>
 
-// TODO: !! improve civilians' fleeing when the pirate was spotted (seems like 
+// TODO: BUG improve civilians' fleeing when the pirate was spotted (seems like 
 // it's not working correctly if the closest border position == ship.position)
+// TODO: BUG when map size is too small (0, 1.). Works fine if negative.
+// TODO: NEW add OnGenerate.
+
+// Possibly handled:
+// TODO: BUG when pirate's velocity is bigger than map.
 
 int main(int argc, const char** argv)
 {
 	options::TOptions options(argc, argv);
 
 	if (!options.IsValid())
-		return -1;
+		return EXIT_FAILURE;
 
 	TGame game(options);
 
 	bool ok = game.Run();
 
+	if (!ok)
+		return EXIT_FAILURE;
+
+	std::cout << "Press enter to exit." << std::endl;
 	std::cin.get();
 	return 0;
 }

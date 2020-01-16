@@ -24,6 +24,8 @@ public:
 	unsigned int GetHeight() const
 		{ return Height; }
 
+	// Correct divider for rand().
+	void CorrectModulo(unsigned& x, unsigned& y) const;
 	// Roll position at map's border.
 	TCoordinates RollCivilianPosition() const;
 	// Roll position anywhere.

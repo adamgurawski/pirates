@@ -10,45 +10,53 @@ namespace
 #define PIRATE_NAME "The Green Oyster"
 }
 
-bool TCoordinatesComparer::operator()(TCoordinates lhs, TCoordinates rhs) const
+void TMap::CorrectModulo(unsigned& x, unsigned& y) const
 {
-	if (lhs.X == rhs.X)
-	{
-		return lhs.Y < rhs.Y;
-	}
-	else if (lhs.Y == rhs.Y)
-	{
-		return lhs.X < rhs.X;
-	}
-	else
-		return (lhs.X < rhs.X);
+	unsigned xMax = Width - 1;
+	unsigned yMax = Height - 1;
+
+	if (xMax == 0)
+		x = 1;
+	else if (xMax == 1)
+		x = 2;
+
+	if (yMax == 0)
+		y = 1;
+	else if (yMax == 1)
+		y = 2;
 }
 
 TCoordinates TMap::RollCivilianPosition() const
 {
+	if (!HasEmptyCoordinates())
+		throw std::logic_error("Error: Map too small for this number of ships.");
+
 	TCoordinates result = { 0,0 };
-	unsigned int xMax = Width - 1;
-	unsigned int yMax = Height - 1;
+	unsigned xMax = Width - 1;
+	unsigned yMax = Height - 1;
+	unsigned moduloX = xMax;
+	unsigned moduloY = yMax;
+	CorrectModulo(moduloX, moduloY);
 
 	switch (rand() % 4 + 1)
 	{
 	case 1:
 		// X = 0. Roll Y.
-		result.Y = rand() % xMax;
+		result.Y = rand() % moduloY;
 		break;
 	case 2:
 		// Y = 0. Roll X.
-		result.X = rand() % xMax;
+		result.X = rand() % moduloX;
 		break;
 	case 3:
 		// X = max. Roll Y.
 		result.X = xMax;
-		result.Y = rand() % yMax;
+		result.Y = rand() % moduloY;
 		break;
 	case 4:
 		// Y = max. Roll X.
 		result.Y = yMax;
-		result.X = rand() % xMax;
+		result.X = rand() % moduloX;
 		break;
 	default:
 		assert(false && "How did we get here?");
@@ -63,8 +71,11 @@ TCoordinates TMap::RollCivilianPosition() const
 TCoordinates TMap::RollPiratesPosition() const
 {
 	TCoordinates result;
-	result.X = rand() % (Width - 1);
-	result.Y = rand() % (Height - 1);
+	unsigned moduloX = Width - 1;
+	unsigned moduloY = Height - 1;
+	CorrectModulo(moduloX, moduloY);
+	result.X = rand() % moduloX;
+	result.Y = rand() % moduloY;
 
 	if (!IsEmpty({ result.X, result.Y }))
 		return RollPiratesPosition();
@@ -94,8 +105,7 @@ void TMap::Display() const
 		}
 		std::cout << std::endl;
 	}
-	// Indentation for double-digit max coordinates.
-	std::cout << "   ";
+	std::cout << "Y/X";
 
 	for (unsigned int j = 0; j < Width; j++)
 	{ // Print X coordinates.
@@ -120,7 +130,7 @@ bool TMap::PlaceOnMap(TCoordinates coordinates, const IShip* ship)
 }
 
 TCoordinates TMap::CalculateClosestExit(TCoordinates coordinates) const
-{ // TODO: make it prettier.
+{ 
 	int maxX = Width - 1;
 	int maxY = Height - 1;
 	int x = coordinates.X;

@@ -133,14 +133,16 @@ TCoordinates TSimpleBrain::GetDesiredDestination(bool needsCorrection,
 		}
 	}
 	else
-	{ 
-		int velocity = std::trunc(Velocity) - attempts + 1;
+	{
+		int adjustedVelocity = std::trunc(Velocity) - attempts + 1;
 
-		if (!(velocity < 1))
-			destination = ZigZag(velocity);
+		while (destination == Position && adjustedVelocity > 1)
+		{
+			destination = ZigZag(adjustedVelocity);
+			--adjustedVelocity;
+		}
 	}
 
-	// TODO: ?? Temporary until implemented.
 	Destination = destination;
 	return Destination;
 }
@@ -245,8 +247,8 @@ TCoordinates TSimpleBrain::AlignWithX(const TCoordinates& position,
 		if (xDifference > velocity)
 		{ // Can't align with X, move horizontally to the right.
 			unsigned int savedVelocity = velocity;
-velocity = 0;
-return position + TCoordinates({ savedVelocity, 0 });
+			velocity = 0;
+			return position + TCoordinates({ savedVelocity, 0 });
 		}
 		else
 		{ // Can align with X.
@@ -331,7 +333,7 @@ TCoordinates TSimpleBrain::ZigZag(int adjustedVelocity)
 	int maxY = MaxY;
 
 	int halfVelocity = adjustedVelocity / 2;
-	if (halfVelocity < 1)
+	if (halfVelocity < 1 || halfVelocity > maxX / 2 || halfVelocity > maxY / 2)
 		return Position;
 
 	if (x == maxX || (x + halfVelocity > maxX))
