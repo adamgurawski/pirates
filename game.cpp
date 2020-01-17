@@ -1,8 +1,7 @@
 #include "game.h"
 
 #include <cassert>
-#include <cmath> // round()
-#include <iostream> 
+#include <cmath> // std::round
 #include <time.h> // srand
 
 TGame::TGame(options::TOptions& options)
@@ -21,9 +20,7 @@ TGame::TGame(options::TOptions& options)
 
 	// Will not be using options anymore, can steal ShipInfo to prevent unnecessary copying.
 	ShipsInfo = options.StealShipInfo();
-			
-	// TODO: debug
-	// Pirate.debug_IntroduceYourself();
+	Messenger.OnGenerate(&Pirate, true);
 }
 
 bool TGame::Run()
@@ -33,8 +30,9 @@ bool TGame::Run()
 		try
 		{
 			// Generate ships which TimeToGeneration equals CurrentTime.
+			Messenger.OnTurn(CurrentTime + 1);
 			GenerateShips();
-			Messenger.OnTurn(CurrentTime + 1, Map);
+			Messenger.PrintMap(Map);
 			RunTurn();
 		}
 		catch (const std::logic_error& logicError)
@@ -96,9 +94,7 @@ void TGame::CreateShip(const TShipInfo& shipInfo)
 	// Place added ship on a map.
 	const IShip* addedShip = Ships.back().get();
 	Map.PlaceOnMap(addedShip->GetPosition(), addedShip);
-
-	// TODO: OnGeneration?
-	// addedShip->debug_IntroduceYourself();
+	Messenger.OnGenerate(addedShip);
 }
 
 void TGame::GenerateShips()
@@ -192,7 +188,7 @@ void TGame::MovePirate()
 	do
 	{
 		++attempts;
-		destination = Pirate.GetDesiredDestination(needsCorrection, attempts);
+		destination = Pirate.GetDesiredDestination(attempts);
 		try
 		{
 			needsCorrection = !Map.IsEmpty(destination);

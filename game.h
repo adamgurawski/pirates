@@ -10,7 +10,6 @@
 #include "ship.h"
 
 #include <memory>
-#include <string>
 #include <list>
 
 // Responsible for running the game.

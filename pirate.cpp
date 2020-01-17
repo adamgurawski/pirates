@@ -6,7 +6,7 @@
 
 namespace
 {
-// If one wishes to change the name, shall do it in "map.cpp" as well.
+// If one wishes to change the name, must do it in "map.cpp" as well.
 #define PIRATE_NAME "The Green Oyster"
 #define PIRATE_VISIBILITY 7.0f
 #define PIRATE_INITIAL_VELOCITY 1.0f	
@@ -55,10 +55,9 @@ TPirate& TPirate::operator=(TPirate&& rhs)
 	return *this;
 }
 
-TCoordinates TPirate::GetDesiredDestination(bool needsCorrection, 
-	unsigned int attempts)
+TCoordinates TPirate::GetDesiredDestination(unsigned attempts)
 {
-	return Brain->GetDesiredDestination(needsCorrection, attempts);
+	return Brain->GetDesiredDestination(attempts);
 }
 
 void TPirate::ModifyVelocity(float fastestCivilianVelocity)
@@ -96,13 +95,7 @@ TSimpleBrain::TSimpleBrain(TCoordinates& position,
 {
 }
 
-/*
-	 1. If doesn't need correction, return genuine desired destination.
-	 2. If needs correction, return genuine desired destination - 1 tile.
-	 3. Repeat 2, when Destination = Position return Position?
-*/
-TCoordinates TSimpleBrain::GetDesiredDestination(bool needsCorrection,
-	unsigned int attempts)
+TCoordinates TSimpleBrain::GetDesiredDestination(unsigned int attempts)
 {
 	TCoordinates destination = Position;
 
@@ -112,15 +105,7 @@ TCoordinates TSimpleBrain::GetDesiredDestination(bool needsCorrection,
 
 		if (CanReach(targetPosition))
 		{ // Go as close to target as possible.
-			bool isAnyEmpty = true;
-
-			destination = GetPositionNearTarget(needsCorrection, isAnyEmpty, 
-				attempts);
-
-			// TODO: is this correct?
-			if (!isAnyEmpty)
-			{ // No space near target to get to. Return position.
-			}
+			destination = GetPositionNearTarget(attempts);
 		}
 		else
 		{ // Can't reach target in this turn, follow the target.
@@ -133,7 +118,7 @@ TCoordinates TSimpleBrain::GetDesiredDestination(bool needsCorrection,
 		}
 	}
 	else
-	{
+	{ // Zig-zag looking for a target.
 		int adjustedVelocity = std::trunc(Velocity) - attempts + 1;
 
 		while (destination == Position && adjustedVelocity > 1)
@@ -179,15 +164,13 @@ bool TSimpleBrain::CanReach(TCoordinates point) const
 
 	return !(distance > Velocity);
 }
-TCoordinates TSimpleBrain::GetPositionNearTarget(bool needsCorrection,
-	bool& isAnyEmpty, unsigned int attempts) const
+TCoordinates TSimpleBrain::GetPositionNearTarget(unsigned attempts) const
 { // TODO: does it have to be so ugly?
 	assert(!Target.IsEmpty() && "Target must be set.");
 	assert(CanReach(Target->GetPosition()) &&
 		"Can be called only when target is reachable.");
 
 	TCoordinates target = Target->GetPosition();
-
 	bool upInaccessible = target.Y == MaxY;
 	bool downInaccessible = target.Y == 0;
 	bool leftInaccessible = target.X == 0;
@@ -212,13 +195,9 @@ TCoordinates TSimpleBrain::GetPositionNearTarget(bool needsCorrection,
 		coordinates.push_back(right);
 	else if (!downInaccessible && CanReach(down))
 		coordinates.push_back(down);
-	else
-		isAnyEmpty = false;
 
 	if (attempts - 1 < coordinates.size())
-	{
 		Destination = coordinates.at(attempts - 1);
-	}
 
 	return Destination;
 }
@@ -364,11 +343,9 @@ TCoordinates TSimpleBrain::ZigZag(int adjustedVelocity)
 	return destination;
 }
 
-void TPirate::debug_IntroduceYourself() const
+void TPirate::IntroduceYourself() const
 {
-	std::cout << "Argghh!" << std::endl;
-	std::cout << "Name: " << Name << std::endl << "Velocity: " <<
-		Velocity << std::endl << "Visibility: " << Visibility << std::endl <<
-		"Position: [" << Position.X << " " << Position.Y << "]" << std::endl <<
-		"Destination: " << Destination.X << " " << Destination.Y << std::endl;
+	std::cout << "Type of vessel: pirate ship" << std::endl;
+	AShip::IntroduceYourself();
+	std::cout << std::endl;
 }

@@ -2,9 +2,9 @@
 #define _MESSENGER_H
 
 #include "coordinates.h"
-#include "map.h"
 
 class IShip;
+class TMap;
 class TPirate;
 
 class TMessenger
@@ -17,8 +17,12 @@ public:
 		Verbose(verbose)
 	{}
 
-	// Print turn number and print graphical representation of the map if -g was passed.
-	void OnTurn(int turn, const TMap& map) const;
+	// Print ship's details after generating.
+	void OnGenerate(const IShip* ship, bool isPirate = false) const;
+	// Print turn number.
+	void OnTurn(int turn) const;
+	// Print graphical representation of the map if -g was passed.
+	void PrintMap(const TMap& map) const;
 	// Print position where the ship has left the map.
 	void OnLeave(const IShip* ship, const TCoordinates& lastPosition) const;
 	// Print info about success or failure of pirate's attack.

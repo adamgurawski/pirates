@@ -6,8 +6,6 @@
 
 // TODO: BUG improve civilians' fleeing when the pirate was spotted (seems like 
 // it's not working correctly if the closest border position == ship.position)
-// TODO: BUG when map size is too small (0, 1.). Works fine if negative.
-// TODO: NEW add OnGenerate.
 
 // Possibly handled:
 // TODO: BUG when pirate's velocity is bigger than map.

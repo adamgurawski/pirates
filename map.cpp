@@ -1,13 +1,20 @@
 #include "map.h"
+#include "ship.h"
 
-#include <cmath> // sqrt(), abs()
-#include <random> // rand()
+#include <iomanip> // std::setw
+#include <iostream>
+#include <random> // std::rand
 #include <cassert> // assert
 
 namespace
 {
-// If one wishes to change the name, shall do it in "pirate.cpp" as well.
+// If one wishes to change the name, must do it in "pirate.cpp" as well.
 #define PIRATE_NAME "The Green Oyster"
+}
+
+TMap::TMap(unsigned int width, unsigned int height) : Width(width), Height(height)
+{
+	CreateEmptyMap();
 }
 
 void TMap::CorrectModulo(unsigned& x, unsigned& y) const

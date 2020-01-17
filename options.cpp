@@ -1,11 +1,9 @@
 
 #include "options.h"
-#include "game.h"
 
 #include <iostream>
 #include <exception>
 #include <string>
-#include <vector>
 
 options::TOptions::TOptions(int argc, const char** argv) : ArgCount(argc), Args(argv),
 	ValidParams(true), Graphical(false), Verbose(false)

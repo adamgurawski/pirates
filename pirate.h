@@ -3,7 +3,7 @@
 
 #include "ship.h"
 
-/* I had to create this wrapper because TPirate::Target can be nullptr and TSimpleBrain
+/* This wrapper is necessary because TPirate::Target can be nullptr and TSimpleBrain
 	 holds a reference to Target. */
 class TTargetWrapper
 {
@@ -37,8 +37,7 @@ class IPirateBrain
 {
 public:
 	virtual ~IPirateBrain() = default;
-	virtual TCoordinates GetDesiredDestination(bool nedsCorrection,
-		unsigned int attempts) = 0;
+	virtual TCoordinates GetDesiredDestination(unsigned attempts) = 0;
 	virtual void SetMapBorders(unsigned int maxX, unsigned int maxY) = 0;
 
 protected:
@@ -54,28 +53,23 @@ public:
 	// Move assignment operator.
 	TSimpleBrain& operator=(TSimpleBrain&& rhs);
 
-	virtual TCoordinates GetDesiredDestination(bool needsCorrection,
-		unsigned int attempts) override;
-	
+	virtual TCoordinates GetDesiredDestination(unsigned attempts) override;
 	virtual void SetMapBorders(unsigned int maxX, unsigned int maxY) override;
 
 private:
 	// Return true if coordinates are reachable in this turn.
 	bool CanReach(TCoordinates point) const;
 	// Return reachable coordinates with distance to target no longer than 1.
-	// Return isAnyEmpty = false when there is no available coordinates 
-	// of this sort.
-	TCoordinates GetPositionNearTarget(bool needsCorrection, 
-		bool& isAnyEmpty, unsigned int attempts) const;
+	TCoordinates GetPositionNearTarget(unsigned attempts) const;
 	// Align with target's X, then follow along Y.
 	TCoordinates ChaseTarget(int adjustedVelocity) const;
-	// TODO: comment.
+	// Align with target's X.
 	TCoordinates AlignWithX(const TCoordinates& position,
 		const TCoordinates& target, unsigned int& velocity) const;
-	// TODO: comment.
+	// Align with target's Y.
 	TCoordinates AlignWithY(const TCoordinates& position,
 		const TCoordinates& target, unsigned int& velocity) const;
-	// TODO: comment
+	// Move in zig-zag pattern while there's no target in sight.
 	TCoordinates ZigZag(int adjustedVelocity);
 	
 private:
@@ -113,25 +107,23 @@ public:
 	
 	// Use Brain to return desired destination.
 	// (note that Brain changes Destination member)
-	TCoordinates GetDesiredDestination(bool needsCorrection, 
-		unsigned int attempts);
+	TCoordinates GetDesiredDestination(unsigned attempts);
 	// Set Velocity as fastestCivilian multiplied by 1.25.
 	void ModifyVelocity(float fastestCivilianVelocity);
-
+	// Change destination if target points to a ship (nullptr otherwise).
 	void ChangeTarget(const IShip* target);
-
+	// Return target the ship is following.
 	const IShip* GetTarget() const;
-
+	// Set Destination = destination.
 	void ChangeDestination(const TCoordinates& destination);
 	// Pass map borders to Brain.
 	void SetMapBorders(unsigned int maxX, unsigned int maxY);
-
-	virtual void debug_IntroduceYourself() const override;
+	// Print all of information about pirate.
+	virtual void IntroduceYourself() const override;
 
 private:
 	// Note that the target can be nullptr (of course not the wrapper itself).
 	TTargetWrapper Target;
-
 	// Brain responsible for deciding where to go.
 	std::unique_ptr<IPirateBrain> Brain;
 };

@@ -1,3 +1,4 @@
+#include "map.h"
 #include "messenger.h"
 #include "pirate.h"
 #include "ship.h"
@@ -5,9 +6,23 @@
 #include <cassert>
 #include <iostream>
 
-void TMessenger::OnTurn(int turn, const TMap& map) const
+void TMessenger::OnGenerate(const IShip* ship, bool isPirate) const
+{
+	assert(ship);
+	std::cout << "\n##### New ship was generated! #####" << std::endl;
+	if (isPirate)
+		std::cout << "Arghh!" << std::endl;
+
+	ship->IntroduceYourself();
+}
+
+void TMessenger::OnTurn(int turn) const
 {
 	std::cout << "\n##### Turn: " << turn << " #####" << std::endl;
+}
+
+void TMessenger::PrintMap(const TMap& map) const
+{
 	if (Graphical)
 		map.Display();
 }

@@ -1,11 +1,11 @@
 #ifndef _SHIP_H
 #define _SHIP_H
 
-#include <iostream> // debugging purposes
+#include "coordinates.h"
+
+#include <iostream>
 #include <memory>
 #include <string>
-
-#include "coordinates.h"
 
 // Disable "... inherits via dominance" warning.
 #pragma warning (disable: 4250)
@@ -31,7 +31,7 @@ public:
 	virtual float GetRangeOfView() const = 0;
 	virtual TCoordinates GetPosition() const = 0;
 	virtual void Move(const TCoordinates& coordinates) = 0;
-	virtual void debug_IntroduceYourself() const = 0;
+	virtual void IntroduceYourself() const = 0;
 
 protected:
 	IShip() = default;
@@ -73,17 +73,17 @@ public:
 	virtual void Move(const TCoordinates& coordinates) override
 		{ Position = coordinates; }
 
-	virtual void debug_IntroduceYourself() const override
+	virtual void IntroduceYourself() const override
 	{
-		std::cout << "Name: " << Name << std::endl << "Velocity: " <<
-			Velocity << std::endl << "Visibility: " << Visibility << std::endl <<
+		std::cout << "Name: " << Name << std::endl <<
+			"Velocity: " << Velocity << std::endl << 
+			"Visibility: " << Visibility << std::endl <<
 			"Position: [" << Position.X << " " << Position.Y << "]" << std::endl <<
 			"Destination: [" << Destination.X << " " << Destination.Y << "]" << std::endl;
 	}
 
 protected:
 	// Needed by TGame's constructor in order to construct empty TPirate.
-	// Is it anymore after changing inheritance to template?
 	AShip() = default;
 
 	AShip(const std::string& name, float velocity, float visibility, TCoordinates position,
@@ -111,18 +111,14 @@ protected:
 	}
 
 protected:
-	// Name. Separate identificator to be added? Is it neccessary?
+	// Ship's name working as identifier.
 	std::string Name;
-
 	// Speed.
 	float Velocity;
-
 	// Range of view.
 	float Visibility;
-
 	// Position on a map.
 	TCoordinates Position;
-
 	// Position the ship is travelling to.
 	TCoordinates Destination;
 };
@@ -140,13 +136,7 @@ public:
 	virtual TCoordinates GetDestination() const override;
 	virtual float GetVulnerability() const override;
 	virtual void ChangeDestination(TCoordinates coordinates) override;
-
-	virtual void debug_IntroduceYourself() const override
-	{
-		AShip::debug_IntroduceYourself();
-		std::cout << "Vulnerability: " << Vulnerability << std::endl <<
-			"Attacked: " << std::boolalpha << Attacked << std::endl;
-	}
+	virtual void IntroduceYourself() const override;
 
 protected:
 	ACivilian(const std::string& name, float velocity, float visibility, TCoordinates position,
@@ -159,12 +149,10 @@ protected:
 protected:
 	// Chance to be successfully attacked (value between 0 and 1).
 	const float Vulnerability;
-
-	/* Set to true when the ship was unsuccessfully attacked.
-		 If it was successfully attacked - it sinks and gets deleted
-		 from the map, so there is no need to set Attacked = true in this case. */
+	// Set to true when the ship was unsuccessfully attacked.
+	// If it was successfully attacked - it sinks and gets deleted
+	// from the map, so there is no need to set Attacked = true in this case.
 	bool Attacked;
-
 	// True if ship has spotted the pirate and is trying to leave the map.
 	bool RunningAway;
 };
@@ -175,6 +163,8 @@ public:
 	TBulkCarrier(const std::string& name, float velocity, TCoordinates position,
 		TCoordinates destination);
 
+	virtual void IntroduceYourself() const override;
+
 	virtual ~TBulkCarrier() = default;
 };
 
@@ -184,6 +174,8 @@ public:
 	TTanker(const std::string& name, float velocity, TCoordinates position,
 		TCoordinates destination);
 
+	virtual void IntroduceYourself() const override;
+
 	virtual ~TTanker() = default;
 };
 
@@ -192,6 +184,8 @@ class TPassenger : public ACivilian
 public:
 	TPassenger(const std::string& name, float velocity, TCoordinates position,
 		TCoordinates destination);
+
+	virtual void IntroduceYourself() const override;
 
 	virtual ~TPassenger() = default;
 };

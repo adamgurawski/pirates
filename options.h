@@ -70,23 +70,23 @@ private:
 	// Verify that one (-t), two (-m), or three (-s) next arguments
 	// are not switches.
 	bool PreValidate() const;
-
-	/* Validate parameters. When wrong parameters (wrong values, wrong order) were passed or
-		"-h" present, return false. Otherwise return true. */
+	// Validate parameters. When wrong parameters (wrong values, wrong order) were passed or
+	// "-h" present, return false. Otherwise return true.
 	bool ValidateInput();
 	// Tell if idx parameter is not a switch.
 	bool IsNotSwitch(int idx) const;
 	// Take first ship's name's idx as parameter, add its info to the vector.
 	void HandleShip(int& idx);
-	
+	// Make sure given map dimensions are valid and set MapWidth and MapHeight.
 	void SetMapDimensions(int& widthIdx);
-
+	// Make sure given time is valid (positive) and set simulation time.
 	void SetSimulationTime(int& timeIdx);
 
 	// Errors. Used to describe exceptions thrown by f.e. std::stoi the human way.
 	bool InvalidFormatOfInput() const;
 	bool InvalidNumberOfArguments() const;
 
+	// Display tips on how to use the program.
 	void DisplayHelp() const;
 
 private:
