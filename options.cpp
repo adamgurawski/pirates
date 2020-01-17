@@ -35,7 +35,9 @@ void options::TOptions::DisplayHelp() const
 		"-m followed by (int) map_width (int) map_height\n" <<
 		"-s followed by (string) ship_name (float) ship_velocity (int) time_to_generation.\n" <<
 		"Note that all of mentioned arguments are obligatory. There can't be more than one -t and -m " <<
-		"and there can be multiple -s (each representing one ship).\n" << 
+		"and there can be multiple -s (each representing one ship).\n" <<
+		"Also note that map width and height should be bigger than 1. If at least one of them " <<
+		"equals 1, the pirate can't zig-zag, so error gets printed.\n" <<
 		"Optional switches:\n" <<
 		"-g <graphical> display map on every turn\n" <<
 		"-v <verbose> print every event happening in the game (f.e. ship changed position)" << 

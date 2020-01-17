@@ -1,3 +1,7 @@
+// File pirate.h, contains TPirate, TTargetWrapper (wrapper to pirate's target),
+// and IPirateBrain/TSimpleBrain (pirate's brain) responsible for deciding
+// where the pirate wants to go.
+
 #ifndef _PIRATE_H
 #define _PIRATE_H
 
@@ -69,7 +73,9 @@ private:
 	// Align with target's Y.
 	TCoordinates AlignWithY(const TCoordinates& position,
 		const TCoordinates& target, unsigned int& velocity) const;
-	// Move in zig-zag pattern while there's no target in sight.
+	// Move in zig-zag pattern while there's no target in sight. Note that
+	// if map size is (1, x) or (x, 1) zig-zag is impossible therefore
+	// exception "Error: coordinates out of range" is thrown.
 	TCoordinates ZigZag(int adjustedVelocity);
 	
 private:

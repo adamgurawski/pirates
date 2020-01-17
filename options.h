@@ -1,4 +1,4 @@
-// File options.h, contains functions used for console-input validation.
+// File options.h, contains TOptions responsible for console-input validation.
 
 #ifndef _OPTIONS_H
 #define _OPTIONS_H

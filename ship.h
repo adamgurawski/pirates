@@ -1,3 +1,5 @@
+// File ship.h, contains ship class hierarchy.
+
 #ifndef _SHIP_H
 #define _SHIP_H
 

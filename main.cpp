@@ -4,14 +4,6 @@
 
 #include <iostream>
 
-// TODO: BUG improve civilians' fleeing when the pirate was spotted (seems like 
-// it's not working correctly if the closest border position == ship.position)
-
-// TODO: BUG modify velocity when removing ships!
-
-// Possibly handled:
-// TODO: BUG when pirate's velocity is bigger than map.
-
 int main(int argc, const char** argv)
 {
 	options::TOptions options(argc, argv);

@@ -170,8 +170,9 @@ bool TSimpleBrain::CanReach(TCoordinates point) const
 
 	return !(distance > Velocity);
 }
+
 TCoordinates TSimpleBrain::GetPositionNearTarget(unsigned attempts) const
-{ // TODO: does it have to be so ugly?
+{ // TODO: refactor this.
 	assert(!Target.IsEmpty() && "Target must be set.");
 	assert(CanReach(Target->GetPosition()) &&
 		"Can be called only when target is reachable.");
@@ -312,13 +313,19 @@ TCoordinates TSimpleBrain::AlignWithY(const TCoordinates& position,
 TCoordinates TSimpleBrain::ZigZag(int adjustedVelocity)
 {
 	TCoordinates destination = Position;
-	int x = Position.X;
-	int y = Position.Y;
-	int maxX = MaxX;
-	int maxY = MaxY;
+	int x = static_cast<int>(Position.X);
+	int y = static_cast<int>(Position.Y);
+	int maxX = static_cast<int>(MaxX);
+	int maxY = static_cast<int>(MaxY);
 
-	int halfVelocity = adjustedVelocity / 2;
-	if (halfVelocity < 1 || halfVelocity > maxX / 2 || halfVelocity > maxY / 2)
+	if (maxX == 0 || maxY == 0)
+		throw std::logic_error("Error: Map dimensions do not allow zigzagging.");
+
+	int halfMaxX = std::round((maxX + 0.01) / 2);
+	int halfMaxY = std::round((maxY + 0.01) / 2);
+	int halfVelocity = std::trunc((adjustedVelocity + 0.01) / 2);
+
+	if (halfVelocity < 1 || halfVelocity > halfMaxX || halfVelocity > halfMaxY)
 		return Position;
 
 	if (x == maxX || (x + halfVelocity > maxX))

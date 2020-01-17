@@ -1,3 +1,5 @@
+// File messenger.h, contains TMessenger responsible for printing events to console.
+
 #ifndef _MESSENGER_H
 #define _MESSENGER_H
 

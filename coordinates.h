@@ -1,3 +1,6 @@
+// File coordinates.h, contains struct TCoordinates, definitions of operators
+// and TCoordinatesComparer used in STL containers.
+
 #ifndef _COORDINATES_H
 #define _COORDINATES_H
 

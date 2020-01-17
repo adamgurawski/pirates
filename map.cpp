@@ -36,7 +36,8 @@ void TMap::CorrectModulo(unsigned& x, unsigned& y) const
 TCoordinates TMap::RollCivilianPosition() const
 {
 	if (!HasEmptyCoordinates())
-		throw std::logic_error("Error: Map too small for this number of ships.");
+		throw std::logic_error(
+			"Error: There is no place on the map available for generation of new ship.");
 
 	TCoordinates result = { 0,0 };
 	unsigned xMax = Width - 1;
@@ -155,7 +156,6 @@ TCoordinates TMap::CalculateClosestExit(TCoordinates coordinates) const
 	TRoute route = TRoute::INVALID;
 	int smallestDistance = (maxY > maxX) ? maxY : maxX;
 
-	// TODO: verify that there are no errors (f.e. when current coordinates are in the middle).
 	if (maxY - y < smallestDistance)
 	{
 		smallestDistance = maxY - y;
@@ -188,8 +188,7 @@ TCoordinates TMap::CalculateClosestExit(TCoordinates coordinates) const
 	case TRoute::RIGHT:
 		return { static_cast<unsigned>(maxX), coordinates.Y };
 	default:
-		assert(false && "Invalid route.");
-		throw std::logic_error("Something went wrong in calculating closest exit.");
+		throw std::logic_error("Error: Calculation of the closest exit failed.");
 	}
 }
 
@@ -214,7 +213,7 @@ bool TMap::IsEmpty(TCoordinates coordinates) const
 }
 
 bool TMap::HasEmptyCoordinates() const
-{ // Not so optimal solution, but I'm running out of time.
+{
 	for (auto& element : Map)
 		if (element.second == nullptr)
 			return true;

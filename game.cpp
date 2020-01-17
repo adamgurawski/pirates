@@ -35,6 +35,11 @@ bool TGame::Run()
 			Messenger.PrintMap(Map);
 			RunTurn();
 		}
+		catch (const std::out_of_range&)
+		{ // Catch std::map::at exception and describe it the human way.
+			std::cerr << "Error: Coordinates out of range!" << std::endl;
+			return false;
+		}
 		catch (const std::logic_error& logicError)
 		{ 
 			std::cerr << logicError.what() << std::endl;
@@ -56,7 +61,7 @@ void TGame::RunTurn()
 	LookForCivilians();
 	// Move the pirate using its own brain (ask for desired destination).
 	MovePirate();
-	// If target is in range, try to attack.
+	// If pirate's target is in range, try to attack.
 	AttackTarget();
 }
 
@@ -153,7 +158,7 @@ void TGame::MoveCivilian(TShipIt& it, bool& removed)
 	else
 	{	// Can not leave.
 		if (!Map.HasEmptyCoordinates())
-		{ // Do not move, there is nowhere to go. TODO: throw exception?
+		{ // Do not move, there is nowhere to go.
 			return;
 		}
 		// Civilians move only in a straight line so treat velocity as an integer
@@ -167,7 +172,7 @@ void TGame::MoveCivilian(TShipIt& it, bool& removed)
 			velocity -= 1;
 
 			if (velocity < 1)
-			{ // Do not move. Should throw exception?
+			{ // Do not move, can't get closer to destination.
 				return;
 			}
 
@@ -182,22 +187,15 @@ void TGame::MoveCivilian(TShipIt& it, bool& removed)
 
 void TGame::MovePirate()
 {
-	bool needsCorrection = false;
+	bool				 needsCorrection = false;
 	TCoordinates destination;
-
 	unsigned int attempts = 0;
+
 	do
 	{
 		++attempts;
 		destination = Pirate.GetDesiredDestination(attempts);
-		try
-		{
-			needsCorrection = !Map.IsEmpty(destination);
-		}
-		catch (const std::out_of_range&)
-		{
-			std::cerr << "Error: Coordinates out of range!" << std::endl;
-		}
+		needsCorrection = !Map.IsEmpty(destination);
 	} while (needsCorrection && attempts < 4);
 	
 	TCoordinates positionBeforeMove = Pirate.GetPosition();
@@ -306,7 +304,7 @@ bool TGame::CanLeave(const TShipPtr& ship) const
 	}
 	else
 	{
-		throw (std::logic_error("Which axis does the ship move on?"));
+		throw (std::logic_error("Error: Cannot determine whether ship can leave the map."));
 	}
 }
 
@@ -375,9 +373,8 @@ void TGame::AttackTarget()
 	}
 }
 
-// TODO: make it less ugly.
 TCoordinates TGame::SetCivilianStartingDestination(TCoordinates position) const
-{
+{ // TODO: refactor this.
 	TCoordinates destination = position;
 	unsigned int xMax = Map.GetWidth() - 1;
 	unsigned int yMax = Map.GetHeight() - 1;
@@ -396,7 +393,7 @@ TCoordinates TGame::SetCivilianStartingDestination(TCoordinates position) const
 	if (position.X == xMax)
 		destination.X = 0;
 
-	// Temporary fix.
+	// Ugly fix, but it works.
 	if (position.X == 0 && position.Y == 0 || position.X == xMax && position.Y == xMax)
 	{
 		destination.X = xMax;

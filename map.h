@@ -1,3 +1,5 @@
+// File map.h, contains TMap responsible for all of map-related actions.
+
 #ifndef _MAP_H
 #define _MAP_H
 

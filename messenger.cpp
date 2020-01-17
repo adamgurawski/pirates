@@ -96,7 +96,7 @@ void TMessenger::OnChangeTarget(const TPirate& pirate) const
 			targetName << " located at position " << targetPosition << "." << std::endl;
 	}
 	else
-	{ // Target == nullptr.
+	{ // Pirate has no target.
 		std::cout << "Pirate ship " << pirate.GetName() << " does not have a target anymore."
 			<< std::endl;
 	}
