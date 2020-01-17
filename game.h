@@ -70,6 +70,8 @@ private:
 	TCoordinates SetCivilianStartingDestination(TCoordinates position) const;
 	// Save max velocity of the fastest ship and modify pirate's velocity.
 	void CorrectMaxVelocity(float newVelocity);
+	// Iterate over ship list to get max velocity.
+	float GetMaxVelocity() const;
 
 private:
 	// Responsible for printing dialogues to console.

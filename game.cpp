@@ -86,7 +86,8 @@ void TGame::CreateShip(const TShipInfo& shipInfo)
 	}
 
 	// If new ship is the fastest, update max velocity.
-	CorrectMaxVelocity(shipInfo.Velocity);
+	if (ship->GetVelocity() > GetMaxVelocity())
+		CorrectMaxVelocity(ship->GetVelocity());
 
 	// Add ship to ship container.
 	Ships.push_back(std::move(ship));
@@ -325,9 +326,14 @@ bool TGame::IsInRange(const TCoordinates& center, float visibility,
 
 bool TGame::Remove(TShipIt& it)
 {
+	// Remove ship from map.
 	TShipPtr& ship = *it;
 	Map.Remove(ship->GetPosition());
+	// Remove ship from ship list.
 	it = Ships.erase(it);
+	// Update max velocity.
+	float currentMaxVelocity = GetMaxVelocity();
+	CorrectMaxVelocity(currentMaxVelocity);
 	return true;
 }
 
@@ -406,9 +412,20 @@ TCoordinates TGame::SetCivilianStartingDestination(TCoordinates position) const
 
 void TGame::CorrectMaxVelocity(float newVelocity)
 {
-	if (newVelocity > CurrentMaxVelocity)
-	{
-		CurrentMaxVelocity = newVelocity;
-		Pirate.ModifyVelocity(CurrentMaxVelocity);
-	}
+	CurrentMaxVelocity = newVelocity;
+	Pirate.ModifyVelocity(CurrentMaxVelocity);
+}
+
+float TGame::GetMaxVelocity() const
+{
+	float velocity = 0;
+	for (const TShipPtr& ship : Ships)
+		if (ship->GetVelocity() > velocity)
+			velocity = ship->GetVelocity();
+
+	if (velocity == 0)
+		return 0;
+	else
+		return velocity;
+		
 }

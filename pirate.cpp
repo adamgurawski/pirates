@@ -9,7 +9,8 @@ namespace
 // If one wishes to change the name, must do it in "map.cpp" as well.
 #define PIRATE_NAME "The Green Oyster"
 #define PIRATE_VISIBILITY 7.0f
-#define PIRATE_INITIAL_VELOCITY 1.0f	
+// Set velocity to two in order to allow targetless pirate to move diagonally.
+#define PIRATE_INITIAL_VELOCITY 2.0f	
 }
 
 TTargetWrapper& TTargetWrapper::operator=(const IShip* ship)
@@ -63,6 +64,11 @@ TCoordinates TPirate::GetDesiredDestination(unsigned attempts)
 void TPirate::ModifyVelocity(float fastestCivilianVelocity)
 {
 	Velocity = fastestCivilianVelocity * 1.25f;
+
+	if (Velocity < 2)
+	{ // Set velocity to two in order to allow targetless pirate to move diagonally.
+		Velocity = 2;
+	}
 }
 
 void TPirate::ChangeTarget(const IShip* target)
