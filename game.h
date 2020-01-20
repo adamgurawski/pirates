@@ -18,10 +18,6 @@
 class TGame
 {
 public:
-	using TShipPtr = std::unique_ptr<ICivilian>;
-	using TShipInfoSet = std::multiset<TShipInfo, TTimeComparer>;
-	using TShipIt = std::list<TShipPtr>::iterator;
-
 	TGame(options::TOptions& options);
 	~TGame() = default;
 	
@@ -31,6 +27,10 @@ public:
 	void RunTurn();
 
 private:
+	using TShipPtr = std::unique_ptr<ICivilian>;
+	using TShipInfoSet = std::multiset<TShipInfo, TTimeComparer>;
+	using TShipIt = std::list<TShipPtr>::iterator;
+
 	// Create a ship and place it on the map.
 	void CreateShip(const TShipInfo& shipInfo);
 	// Create ships which time of generation equals CurrentTime and erase their info

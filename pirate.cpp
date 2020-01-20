@@ -40,16 +40,19 @@ TPirate::TPirate(TCoordinates position) :
 }
 
 TPirate::TPirate(TPirate&& rhs) : AShip(std::move(rhs)),
-Target(std::move(rhs.Target))
+	Target(std::move(rhs.Target))
 {
-	Brain = std::move(rhs.Brain);
+	// Delete old Brain.
+	rhs.Brain.reset();
+	// Create new brain referencing proper TPirate's members. 
+	Brain = std::make_unique<TSimpleBrain>(Position, Destination, Velocity, Target);
 }
 
 TPirate& TPirate::operator=(TPirate&& rhs)
 {
 	AShip::operator=(std::move(rhs));
 	// Delete old Brain.
-	rhs.Brain.reset();;
+	rhs.Brain.reset();
 	Target = std::move(rhs.Target);
 	// Create new brain referencing proper TPirate's members. 
 	Brain = std::make_unique<TSimpleBrain>(Position, Destination, Velocity, Target);
@@ -76,7 +79,6 @@ void TPirate::ChangeTarget(const IShip* target)
 	Target = target;
 	if (!Target.IsEmpty())
 		Destination = Target->GetPosition();
-
 }
 
 const IShip* TPirate::GetTarget() const
