@@ -1,8 +1,9 @@
 
 #include "options.h"
 
+#include <cstring> // for linux (strcmp)
 #include <iostream>
-#include <exception>
+#include <stdexcept>
 #include <string>
 
 options::TOptions::TOptions(int argc, const char** argv) : ArgCount(argc), Args(argv),
