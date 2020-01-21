@@ -4,7 +4,6 @@
 #include <cstring> // for linux (strcmp)
 #include <iostream>
 #include <stdexcept>
-#include <string>
 
 options::TOptions::TOptions(int argc, const char** argv) : ArgCount(argc), Args(argv),
 	ValidParams(true), Graphical(false), Verbose(false)
