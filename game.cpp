@@ -90,9 +90,10 @@ void TGame::CreateShip(const TShipInfo& shipInfo)
 		assert(false && "How did we get here?");
 	}
 
+	unsigned shipVelocity = ship->GetVelocity();
 	// If new ship is the fastest, update max velocity.
-	if (ship->GetVelocity() > GetMaxVelocity())
-		CorrectMaxVelocity(ship->GetVelocity());
+	if (shipVelocity > GetMaxVelocity())
+		CorrectMaxVelocity(shipVelocity);
 
 	// Add ship to ship container.
 	Ships.push_back(std::move(ship));

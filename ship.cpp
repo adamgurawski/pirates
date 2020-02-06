@@ -11,41 +11,6 @@ namespace
 #define PASSENGERS_VULNERABILITY 0.3f
 }
 
-bool ACivilian::WasAttacked() const
-{
-	return Attacked;
-}
-
-void ACivilian::SetAttacked()
-{
-	Attacked = true;
-}
-
-bool ACivilian::IsRunningAway() const
-{
-	return RunningAway;
-}
-
-void ACivilian::SetRunningAway()
-{
-	RunningAway = true;
-}
-
-TCoordinates ACivilian::GetDestination() const
-{
-	return Destination;
-}
-
-float ACivilian::GetVulnerability() const
-{
-	return Vulnerability;
-}
-
-void ACivilian::ChangeDestination(TCoordinates coordinates)
-{
-	Destination = coordinates;
-}
-
 void ACivilian::IntroduceYourself() const
 {
 	AShip::IntroduceYourself();

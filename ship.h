@@ -95,20 +95,20 @@ protected:
 
 	// Move constructor.
 	AShip(AShip&& rhs) : Name(std::move(rhs.Name)),
-		Velocity(std::move(rhs.Velocity)),
-		Visibility(std::move(rhs.Visibility)),
-		Position(std::move(rhs.Position)),
-		Destination(std::move(rhs.Destination))
+		Velocity(rhs.Velocity),
+		Visibility(rhs.Visibility),
+		Position(rhs.Position),
+		Destination(rhs.Destination)
 	{}
 
 	// Move assignment operator.
 	AShip& operator=(AShip&& rhs)
 	{
 		Name = std::move(rhs.Name);
-		Velocity = std::move(rhs.Velocity);
-		Visibility = std::move(rhs.Visibility);
-		Position = std::move(rhs.Position);
-		Destination = std::move(rhs.Destination);
+		Velocity = rhs.Velocity;
+		Visibility = rhs.Visibility;
+		Position = rhs.Position;
+		Destination = rhs.Destination;
 		return *this;
 	}
 
@@ -131,13 +131,20 @@ class ACivilian : public AShip<ICivilian>
 public:
 	virtual ~ACivilian() = default;
 
-	virtual bool WasAttacked() const override;
-	virtual void SetAttacked() override;
-	virtual bool IsRunningAway() const override;
-	virtual void SetRunningAway() override;
-	virtual TCoordinates GetDestination() const override;
-	virtual float GetVulnerability() const override;
-	virtual void ChangeDestination(TCoordinates coordinates) override;
+	virtual bool WasAttacked() const override
+	{ return Attacked; }
+	virtual void SetAttacked() override
+	{ Attacked = true; }
+	virtual bool IsRunningAway() const override
+	{ return RunningAway;	}
+	virtual void SetRunningAway() override
+	{ RunningAway = true;	}
+	virtual TCoordinates GetDestination() const override
+	{ return Destination;	}
+	virtual float GetVulnerability() const override
+	{ return Vulnerability;	}
+	virtual void ChangeDestination(TCoordinates coordinates) override
+	{ Destination = coordinates; }
 	virtual void IntroduceYourself() const override;
 
 protected:
